@@ -6,12 +6,14 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import RegistrationStatus from "../pages/RegistrationStatus";
+import InviteAccept from "../pages/InviteAccept";
 import RequireAuth from "../components/RequireAuth";
 import RequireRole from "../components/RequireRole";
 import PlatformDashboard from "../pages/platform/PlatformDashboard";
 import Plans from "../pages/platform/Plans";
 import OrgDashboard from "../pages/org/OrgDashboard";
 import Subscription from "../pages/org/Subscription";
+import Members from "../pages/org/Members";
 import MemberDashboard from "../pages/member/MemberDashboard";
 
 export const router = createBrowserRouter([
@@ -41,6 +43,10 @@ export const router = createBrowserRouter([
         Component: RegistrationStatus,
       },
       {
+        path: "/invite/accept",
+        Component: InviteAccept,
+      },
+      {
         element: <RequireAuth />,
         children: [
           {
@@ -57,6 +63,7 @@ export const router = createBrowserRouter([
             children: [
               { index: true, Component: OrgDashboard },
               { path: "subscription", Component: Subscription },
+              { path: "members", Component: Members },
             ],
           },
           {
