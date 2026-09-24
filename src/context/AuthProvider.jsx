@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
-import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -11,12 +10,20 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase/firebase.init";
+import apiClient from "../utils/apiClient";
 
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [backendUser, setBackendUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchProfile = async () => {
+    const { data } = await apiClient.get("/auth/me");
+    setBackendUser(data.user);
+    return data.user;
+  };
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -27,26 +34,42 @@ const AuthProvider = ({ children }) => {
     return updateProfile(auth.currentUser, updatedData);
   };
 
-  const signInUser = (email, password) => {
+  const signInUser = async (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(auth, email, password);
+    return fetchProfile();
   };
 
-  const googleSignin = () => {
+  const googleSignin = async () => {
     setLoading(true);
-    return signInWithPopup(auth, googleProvider);
+    await signInWithPopup(auth, googleProvider);
+    return fetchProfile();
   };
-  const logOut = () => {
-    return signOut(auth);
+
+  const logOut = async () => {
+    await signOut(auth);
+    setUser(null);
+    setBackendUser(null);
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log(currentUser);
+    let active = true;
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      if (currentUser) {
+        try {
+          const profile = await fetchProfile();
+          if (active) setBackendUser(profile);
+        } catch {
+          if (active) setBackendUser(null);
+        }
+      } else {
+        if (active) setBackendUser(null);
+      }
+      if (active) setLoading(false);
     });
     return () => {
+      active = false;
       unsubscribe();
     };
   }, []);
@@ -54,12 +77,15 @@ const AuthProvider = ({ children }) => {
   const authInfo = {
     user,
     setUser,
+    backendUser,
+    setBackendUser,
     loading,
     createUser,
     signInUser,
     googleSignin,
     logOut,
-    updateUser
+    updateUser,
+    fetchProfile,
   };
   return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
 };
