@@ -11,6 +11,7 @@ import RequireRole from "../components/RequireRole";
 import PlatformDashboard from "../pages/platform/PlatformDashboard";
 import Plans from "../pages/platform/Plans";
 import OrgDashboard from "../pages/org/OrgDashboard";
+import Subscription from "../pages/org/Subscription";
 import MemberDashboard from "../pages/member/MemberDashboard";
 
 export const router = createBrowserRouter([
@@ -53,7 +54,10 @@ export const router = createBrowserRouter([
           {
             path: "/org",
             element: <RequireRole roles={["org_admin"]} />,
-            children: [{ index: true, Component: OrgDashboard }],
+            children: [
+              { index: true, Component: OrgDashboard },
+              { path: "subscription", Component: Subscription },
+            ],
           },
           {
             path: "/member",

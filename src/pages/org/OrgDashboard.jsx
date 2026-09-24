@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import PanelShell from "../../components/PanelShell";
 import UserCard from "../../components/UserCard";
 import LogoutButton from "../../components/LogoutButton";
@@ -7,11 +8,25 @@ import useAuth from "../../hooks/useAuth";
 import { cardClass, btnPrimary } from "../../utils/ui";
 
 const OrgDashboard = () => {
-  const { backendOrg } = useAuth();
+  const { backendOrg, fetchProfile } = useAuth();
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState("");
 
   const isPending = backendOrg?.status === "PENDING";
+
+  const statusQuery = useQuery({
+    queryKey: ["registration", "status"],
+    queryFn: () => apiClient.get("/auth/registration-status").then((r) => r.data),
+    enabled: isPending,
+    refetchInterval: isPending ? 3000 : false,
+    refetchIntervalInBackground: true,
+  });
+
+  useEffect(() => {
+    if (isPending && statusQuery.data?.org?.status === "ACTIVE") {
+      fetchProfile();
+    }
+  }, [isPending, statusQuery.data?.org?.status, fetchProfile]);
 
   const handlePayNow = async () => {
     setPaying(true);
@@ -29,7 +44,7 @@ const OrgDashboard = () => {
     <PanelShell
       title="Organization Admin"
       subtitle="Manage your organization profile, members, subscription, and billing."
-      navItems={["Profile", "Members", "Subscription", "Billing", "Transactions"]}
+      navItems={["Profile", "Members", { label: "Subscription", to: "/org/subscription" }, "Billing", "Transactions"]}
     >
       <div className="flex items-center justify-end">
         <LogoutButton />
@@ -54,12 +69,11 @@ const OrgDashboard = () => {
 
       <UserCard />
       <div className={cardClass}>
-        <h2 className="text-sm font-semibold text-slate-900 mb-3">This panel will include</h2>
+        <h2 className="text-sm font-semibold text-slate-900 mb-3">Coming next</h2>
         <ul className="list-disc pl-5 text-sm text-slate-600 space-y-1">
           <li>Org profile (edit name, contact info, billing email)</li>
           <li>Members: invite, remove, change role</li>
-          <li>Subscription: plan, renewal date, upgrade / downgrade / cancel</li>
-          <li>Billing and payment history</li>
+          <li>Subscription management is ready — open the Subscription tab above</li>
           <li>Organization transactions with status filter</li>
         </ul>
       </div>
