@@ -5,6 +5,7 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+import RegistrationStatus from "../pages/RegistrationStatus";
 import RequireAuth from "../components/RequireAuth";
 import RequireRole from "../components/RequireRole";
 import PlatformDashboard from "../pages/platform/PlatformDashboard";
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
       {
         path: "/forgot-password",
         Component: ForgotPassword,
+      },
+      {
+        path: "/registration/status",
+        Component: RegistrationStatus,
       },
       {
         element: <RequireAuth />,

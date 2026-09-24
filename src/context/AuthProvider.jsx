@@ -17,11 +17,13 @@ const googleProvider = new GoogleAuthProvider();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [backendUser, setBackendUser] = useState(null);
+  const [backendOrg, setBackendOrg] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async () => {
     const { data } = await apiClient.get("/auth/me");
     setBackendUser(data.user);
+    setBackendOrg(data.org || null);
     return data.user;
   };
 
@@ -50,6 +52,7 @@ const AuthProvider = ({ children }) => {
     await signOut(auth);
     setUser(null);
     setBackendUser(null);
+    setBackendOrg(null);
   };
 
   useEffect(() => {
@@ -61,10 +64,16 @@ const AuthProvider = ({ children }) => {
           const profile = await fetchProfile();
           if (active) setBackendUser(profile);
         } catch {
-          if (active) setBackendUser(null);
+          if (active) {
+            setBackendUser(null);
+            setBackendOrg(null);
+          }
         }
       } else {
-        if (active) setBackendUser(null);
+        if (active) {
+          setBackendUser(null);
+          setBackendOrg(null);
+        }
       }
       if (active) setLoading(false);
     });
@@ -79,6 +88,8 @@ const AuthProvider = ({ children }) => {
     setUser,
     backendUser,
     setBackendUser,
+    backendOrg,
+    setBackendOrg,
     loading,
     createUser,
     signInUser,

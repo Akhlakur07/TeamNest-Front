@@ -7,7 +7,7 @@ const roleLabel = {
 };
 
 const UserCard = () => {
-  const { backendUser } = useAuth();
+  const { backendUser, backendOrg } = useAuth();
 
   if (!backendUser) return null;
 
@@ -32,7 +32,7 @@ const UserCard = () => {
         <div>
           <dt className="text-slate-500">Organization</dt>
           <dd className="text-slate-900 font-medium">
-            {backendUser.orgId ? backendUser.orgId : "Platform"}
+            {backendOrg ? `${backendOrg.name} (${backendOrg.status})` : "Platform"}
           </dd>
         </div>
       </dl>
