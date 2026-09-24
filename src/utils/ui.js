@@ -15,3 +15,6 @@ export const cardClass =
 export const pageContainer = "max-w-5xl mx-auto px-4 py-10";
 
 export const authContainer = "max-w-md mx-auto px-4 py-12";
+
+export const formatPrice = (cents, currency = "usd") =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);

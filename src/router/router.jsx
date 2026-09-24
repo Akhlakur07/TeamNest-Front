@@ -8,6 +8,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import RequireAuth from "../components/RequireAuth";
 import RequireRole from "../components/RequireRole";
 import PlatformDashboard from "../pages/platform/PlatformDashboard";
+import Plans from "../pages/platform/Plans";
 import OrgDashboard from "../pages/org/OrgDashboard";
 import MemberDashboard from "../pages/member/MemberDashboard";
 
@@ -39,7 +40,10 @@ export const router = createBrowserRouter([
           {
             path: "/admin",
             element: <RequireRole roles={["platform_admin"]} />,
-            children: [{ index: true, Component: PlatformDashboard }],
+            children: [
+              { index: true, Component: PlatformDashboard },
+              { path: "plans", Component: Plans },
+            ],
           },
           {
             path: "/org",

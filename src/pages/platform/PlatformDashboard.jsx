@@ -1,7 +1,8 @@
+import { Link } from "react-router";
 import PanelShell from "../../components/PanelShell";
 import UserCard from "../../components/UserCard";
 import LogoutButton from "../../components/LogoutButton";
-import { cardClass } from "../../utils/ui";
+import { cardClass, btnSecondary } from "../../utils/ui";
 
 const PlatformDashboard = () => {
   return (
@@ -10,7 +11,10 @@ const PlatformDashboard = () => {
       subtitle="Manage organizations, plans, and platform-wide transactions."
       navItems={["Organizations", "Plans", "Transactions", "Stats & overview"]}
     >
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between">
+        <Link to="/admin/plans" className={btnSecondary}>
+          Manage plans
+        </Link>
         <LogoutButton />
       </div>
       <UserCard />

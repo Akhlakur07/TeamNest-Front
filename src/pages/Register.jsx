@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Link } from "react-router";
+import PlanPicker from "../components/PlanPicker";
 import { btnPrimary, btnSecondary, cardClass, authContainer } from "../utils/ui";
 
 const Register = () => {
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
   return (
     <div className={authContainer}>
       <div className={cardClass}>
@@ -9,13 +13,21 @@ const Register = () => {
           Register your organization
         </h1>
         <p className="text-sm text-slate-600">
-          Registration is a paid onboarding. You'll pick a plan, pay with Stripe,
-          and your organization becomes active automatically once payment is
-          confirmed.
+          Registration is a paid onboarding. Pick a plan first — the signup form
+          and Stripe checkout arrive in the next step.
         </p>
-        <p className="mt-4 text-sm text-slate-500">
-          The registration form and checkout flow are coming in the next step.
+
+        <div className="mt-6">
+          <p className="text-sm font-medium text-slate-700 mb-2">Choose a plan</p>
+          <PlanPicker value={selectedPlan} onChange={setSelectedPlan} />
+        </div>
+
+        <p className="mt-6 text-sm text-slate-500">
+          {selectedPlan
+            ? "Plan selected. The registration form and payment step are coming next."
+            : "Select a plan, then you'll complete your organization details and pay to activate it."}
         </p>
+
         <div className="mt-6 flex gap-3">
           <Link to="/login" className={btnPrimary}>
             Log in
