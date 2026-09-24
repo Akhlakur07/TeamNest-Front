@@ -44,7 +44,7 @@ const OrgDashboard = () => {
     <PanelShell
       title="Organization Admin"
       subtitle="Manage your organization profile, members, subscription, and billing."
-      navItems={["Profile", { label: "Members", to: "/org/members" }, { label: "Subscription", to: "/org/subscription" }, "Billing", "Transactions"]}
+      navItems={["Profile", { label: "Members", to: "/org/members" }, { label: "Subscription", to: "/org/subscription" }, "Billing", { label: "Transactions", to: "/org/transactions" }]}
     >
       <div className="flex items-center justify-end">
         <LogoutButton />
@@ -74,7 +74,7 @@ const OrgDashboard = () => {
           <li>Org profile (edit name, contact info, billing email)</li>
           <li>Members management is ready — open the Members tab above</li>
           <li>Subscription management is ready — open the Subscription tab above</li>
-          <li>Organization transactions with status filter</li>
+          <li>Transaction history is ready — open the Transactions tab above</li>
         </ul>
       </div>
     </PanelShell>

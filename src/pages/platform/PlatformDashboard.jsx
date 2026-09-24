@@ -9,23 +9,30 @@ const PlatformDashboard = () => {
     <PanelShell
       title="Platform Admin"
       subtitle="Manage organizations, plans, and platform-wide transactions."
-      navItems={["Organizations", "Plans", "Transactions", "Stats & overview"]}
+      navItems={[{ label: "Organizations", to: "/admin/organizations" }, { label: "Plans", to: "/admin/plans" }, { label: "Revenue", to: "/admin/revenue" }, "Transactions", "Stats & overview"]}
     >
-      <div className="flex items-center justify-between">
-        <Link to="/admin/plans" className={btnSecondary}>
-          Manage plans
-        </Link>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-3">
+          <Link to="/admin/organizations" className={btnSecondary}>
+            Organizations
+          </Link>
+          <Link to="/admin/plans" className={btnSecondary}>
+            Manage plans
+          </Link>
+          <Link to="/admin/revenue" className={btnSecondary}>
+            View revenue
+          </Link>
+        </div>
         <LogoutButton />
       </div>
       <UserCard />
       <div className={cardClass}>
         <h2 className="text-sm font-semibold text-slate-900 mb-3">This panel will include</h2>
         <ul className="list-disc pl-5 text-sm text-slate-600 space-y-1">
-          <li>Organizations list with search and filtering</li>
-          <li>Organization detail (profile, members, subscription, payments)</li>
-          <li>Plans management</li>
-          <li>Platform-wide transactions and statistics</li>
-          <li>Suspend / reactivate organizations</li>
+          <li>Organizations list with search and filtering is ready — open the Organizations tab above</li>
+          <li>Organization detail (profile, members, subscription, payments) with suspend/reactivate</li>
+          <li>Plans management is ready — open the Plans tab above</li>
+          <li>Revenue overview is ready — open the Revenue tab above</li>
         </ul>
       </div>
     </PanelShell>

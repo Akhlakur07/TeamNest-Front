@@ -11,9 +11,13 @@ import RequireAuth from "../components/RequireAuth";
 import RequireRole from "../components/RequireRole";
 import PlatformDashboard from "../pages/platform/PlatformDashboard";
 import Plans from "../pages/platform/Plans";
+import Revenue from "../pages/platform/Revenue";
+import Organizations from "../pages/platform/Organizations";
+import OrganizationDetail from "../pages/platform/OrganizationDetail";
 import OrgDashboard from "../pages/org/OrgDashboard";
 import Subscription from "../pages/org/Subscription";
 import Members from "../pages/org/Members";
+import Transactions from "../pages/org/Transactions";
 import MemberDashboard from "../pages/member/MemberDashboard";
 
 export const router = createBrowserRouter([
@@ -55,6 +59,9 @@ export const router = createBrowserRouter([
             children: [
               { index: true, Component: PlatformDashboard },
               { path: "plans", Component: Plans },
+              { path: "revenue", Component: Revenue },
+              { path: "organizations", Component: Organizations },
+              { path: "organizations/:id", Component: OrganizationDetail },
             ],
           },
           {
@@ -64,6 +71,7 @@ export const router = createBrowserRouter([
               { index: true, Component: OrgDashboard },
               { path: "subscription", Component: Subscription },
               { path: "members", Component: Members },
+              { path: "transactions", Component: Transactions },
             ],
           },
           {

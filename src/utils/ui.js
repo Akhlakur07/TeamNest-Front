@@ -18,3 +18,11 @@ export const authContainer = "max-w-md mx-auto px-4 py-12";
 
 export const formatPrice = (cents, currency = "usd") =>
   new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
+
+export const statusStyle = {
+  ACTIVE: "bg-emerald-100 text-emerald-700",
+  PENDING: "bg-amber-100 text-amber-700",
+  SUSPENDED: "bg-red-100 text-red-700",
+  CANCELLED: "bg-slate-200 text-slate-600",
+  TRIAL: "bg-sky-100 text-sky-700",
+};
