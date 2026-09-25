@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import PanelShell from "../../components/PanelShell";
 import UserCard from "../../components/UserCard";
-import LogoutButton from "../../components/LogoutButton";
 import apiClient from "../../utils/apiClient";
 import useAuth from "../../hooks/useAuth";
 import { cardClass, btnPrimary } from "../../utils/ui";
@@ -33,7 +31,12 @@ const OrgDashboard = () => {
     setPayError("");
     try {
       const { data } = await apiClient.post("/auth/retry-checkout");
-      window.location.href = data.checkoutUrl;
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        setPaying(false);
+        await fetchProfile();
+      }
     } catch (err) {
       setPayError(err?.response?.data?.message || "Could not start payment.");
       setPaying(false);
@@ -41,24 +44,21 @@ const OrgDashboard = () => {
   };
 
   return (
-    <PanelShell
-      title="Organization Admin"
-      subtitle="Manage your organization profile, members, subscription, and billing."
-      navItems={["Profile", { label: "Members", to: "/org/members" }, { label: "Subscription", to: "/org/subscription" }, "Billing", { label: "Transactions", to: "/org/transactions" }]}
-    >
-      <div className="flex items-center justify-end">
-        <LogoutButton />
-      </div>
-
+    <div className="space-y-6">
       {isPending && (
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-amber-900">Payment pending activation</h2>
-              <p className="text-sm text-amber-700 mt-0.5">
+              <h2 className="text-sm font-semibold text-amber-300 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Payment pending activation
+              </h2>
+              <p className="text-sm text-amber-400/80 mt-0.5">
                 Your organization is not active yet. Complete payment to activate your workspace.
               </p>
-              {payError && <p className="text-sm text-red-600 mt-1">{payError}</p>}
+              {payError && <p className="text-sm text-red-400 mt-1">{payError}</p>}
             </div>
             <button type="button" className={btnPrimary} onClick={handlePayNow} disabled={paying}>
               {paying ? "Starting..." : "Complete payment"}
@@ -68,16 +68,27 @@ const OrgDashboard = () => {
       )}
 
       <UserCard />
+
       <div className={cardClass}>
-        <h2 className="text-sm font-semibold text-slate-900 mb-3">Coming next</h2>
-        <ul className="list-disc pl-5 text-sm text-slate-600 space-y-1">
-          <li>Org profile (edit name, contact info, billing email)</li>
-          <li>Members management is ready — open the Members tab above</li>
-          <li>Subscription management is ready — open the Subscription tab above</li>
-          <li>Transaction history is ready — open the Transactions tab above</li>
+        <h2 className="text-base font-semibold text-white mb-3">Getting started</h2>
+        <ul className="space-y-2.5">
+          {[
+            "Profile is ready — edit org contact info and billing email in the Profile tab",
+            "Members management is ready — open the Members tab above",
+            "Subscription management is ready — open the Subscription tab above",
+            "Billing and payment history is ready — open the Billing tab above",
+            "Transaction history with CSV export is ready — open the Transactions tab above",
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-2.5 text-sm text-slate-300">
+              <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
-    </PanelShell>
+    </div>
   );
 };
 

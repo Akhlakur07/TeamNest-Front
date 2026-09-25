@@ -1,36 +1,39 @@
 import { Link, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../utils/apiClient";
-import useAuth from "../hooks/useAuth";
-import { btnPrimary, btnSecondary, authContainer } from "../utils/ui";
+import { authContainer, btnPrimary, btnSecondary, cardClass } from "../utils/ui";
 
 const RegistrationStatus = () => {
   const [params] = useSearchParams();
-  const { user } = useAuth();
-  const status = params.get("status");
-  const success = status === "success";
+  const sessionId = params.get("session_id");
+  const success = params.get("success") === "true";
 
   const statusQuery = useQuery({
-    queryKey: ["registration", "status"],
-    queryFn: () => apiClient.get("/auth/registration-status").then((r) => r.data),
-    enabled: success && !!user,
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
-    retry: 1,
+    queryKey: ["checkout-status", sessionId],
+    queryFn: () =>
+      sessionId
+        ? apiClient.get(`/checkout/status?session_id=${sessionId}`).then((r) => r.data)
+        : null,
+    enabled: Boolean(sessionId),
+    refetchInterval: (query) => {
+      const org = query.state?.data?.organization;
+      return org?.status === "ACTIVE" ? false : 3000;
+    },
   });
 
-  const isActive = statusQuery.data?.org?.status === "ACTIVE";
+  const org = statusQuery.data?.organization;
+  const isActive = org?.status === "ACTIVE";
 
   return (
     <div className={authContainer}>
-      <div className="rounded-lg border border-slate-200 bg-white p-8 text-center">
+      <div className={`${cardClass} max-w-md w-full text-center relative z-10`}>
         <div
-          className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full text-2xl font-bold ${
+          className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold shadow-lg ${
             isActive
-              ? "bg-emerald-100 text-emerald-600"
+              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
               : success
-                ? "bg-amber-100 text-amber-600"
-                : "bg-red-100 text-red-600"
+                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                : "bg-rose-500/20 text-rose-400 border border-rose-500/30"
           }`}
         >
           {isActive ? "✓" : success ? "…" : "!"}
@@ -38,9 +41,9 @@ const RegistrationStatus = () => {
 
         {isActive ? (
           <>
-            <h1 className="text-xl font-semibold text-slate-900">Your organization is active!</h1>
-            <p className="mt-2 text-sm text-slate-600">
-              Payment confirmed. Your workspace is ready.
+            <h1 className="text-2xl font-bold text-white tracking-tight">Your organization is active!</h1>
+            <p className="mt-2 text-sm text-slate-300">
+              Your workspace is ready. You can now configure your team and start collaborating.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Link to="/org" className={btnPrimary}>
@@ -50,8 +53,8 @@ const RegistrationStatus = () => {
           </>
         ) : success ? (
           <>
-            <h1 className="text-xl font-semibold text-slate-900">Payment received</h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <h1 className="text-2xl font-bold text-white tracking-tight">Payment received</h1>
+            <p className="mt-2 text-sm text-slate-300">
               {statusQuery.isLoading
                 ? "Confirming your payment with Stripe..."
                 : "Activation in progress. We confirm payments with Stripe instantly — this usually takes a few seconds."}
@@ -67,8 +70,8 @@ const RegistrationStatus = () => {
           </>
         ) : (
           <>
-            <h1 className="text-xl font-semibold text-slate-900">Payment not completed</h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <h1 className="text-2xl font-bold text-white tracking-tight">Payment not completed</h1>
+            <p className="mt-2 text-sm text-slate-300">
               Your payment was not completed and your organization is not active yet. Log in
               and retry the checkout when you're ready.
             </p>

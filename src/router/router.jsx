@@ -14,11 +14,18 @@ import Plans from "../pages/platform/Plans";
 import Revenue from "../pages/platform/Revenue";
 import Organizations from "../pages/platform/Organizations";
 import OrganizationDetail from "../pages/platform/OrganizationDetail";
+import PlatformTransactions from "../pages/platform/PlatformTransactions";
+import Stats from "../pages/platform/Stats";
 import OrgDashboard from "../pages/org/OrgDashboard";
+import OrgProfile from "../pages/org/OrgProfile";
+import Billing from "../pages/org/Billing";
 import Subscription from "../pages/org/Subscription";
 import Members from "../pages/org/Members";
 import Transactions from "../pages/org/Transactions";
 import MemberDashboard from "../pages/member/MemberDashboard";
+
+import AdminLayout from "../layouts/AdminLayout";
+import OrgLayout from "../layouts/OrgLayout";
 
 export const router = createBrowserRouter([
   {
@@ -57,21 +64,35 @@ export const router = createBrowserRouter([
             path: "/admin",
             element: <RequireRole roles={["platform_admin"]} />,
             children: [
-              { index: true, Component: PlatformDashboard },
-              { path: "plans", Component: Plans },
-              { path: "revenue", Component: Revenue },
-              { path: "organizations", Component: Organizations },
-              { path: "organizations/:id", Component: OrganizationDetail },
+              {
+                element: <AdminLayout />,
+                children: [
+                  { index: true, Component: PlatformDashboard },
+                  { path: "plans", Component: Plans },
+                  { path: "revenue", Component: Revenue },
+                  { path: "organizations", Component: Organizations },
+                  { path: "organizations/:id", Component: OrganizationDetail },
+                  { path: "transactions", Component: PlatformTransactions },
+                  { path: "stats", Component: Stats },
+                ],
+              },
             ],
           },
           {
             path: "/org",
             element: <RequireRole roles={["org_admin"]} />,
             children: [
-              { index: true, Component: OrgDashboard },
-              { path: "subscription", Component: Subscription },
-              { path: "members", Component: Members },
-              { path: "transactions", Component: Transactions },
+              {
+                element: <OrgLayout />,
+                children: [
+                  { index: true, Component: OrgDashboard },
+                  { path: "profile", Component: OrgProfile },
+                  { path: "billing", Component: Billing },
+                  { path: "subscription", Component: Subscription },
+                  { path: "members", Component: Members },
+                  { path: "transactions", Component: Transactions },
+                ],
+              },
             ],
           },
           {

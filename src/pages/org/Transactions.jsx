@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../utils/apiClient";
-import LogoutButton from "../../components/LogoutButton";
 import {
   btnSecondary,
   cardClass,
@@ -10,25 +9,28 @@ import {
 } from "../../utils/ui";
 
 const TYPE_LABELS = {
-  checkout: { label: "Checkout", cls: "bg-emerald-100 text-emerald-700" },
-  renewal: { label: "Renewal", cls: "bg-sky-100 text-sky-700" },
-  upgrade: { label: "Upgrade", cls: "bg-indigo-100 text-indigo-700" },
-  downgrade: { label: "Downgrade", cls: "bg-amber-100 text-amber-700" },
-  cancel: { label: "Cancellation", cls: "bg-slate-200 text-slate-600" },
-  refund: { label: "Refund", cls: "bg-red-100 text-red-700" },
+  checkout: { label: "Checkout", cls: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" },
+  renewal: { label: "Renewal", cls: "bg-sky-500/20 text-sky-300 border border-sky-500/30" },
+  upgrade: { label: "Upgrade", cls: "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" },
+  downgrade: { label: "Downgrade", cls: "bg-amber-500/20 text-amber-300 border border-amber-500/30" },
+  cancel: { label: "Cancellation", cls: "bg-slate-500/20 text-slate-300 border border-slate-500/30" },
+  refund: { label: "Refund", cls: "bg-rose-500/20 text-rose-300 border border-rose-500/30" },
 };
 
 const STATUS_LABELS = {
-  PENDING: "bg-amber-100 text-amber-700",
-  SUCCESS: "bg-emerald-100 text-emerald-700",
-  FAILED: "bg-red-100 text-red-700",
-  REFUNDED: "bg-slate-200 text-slate-600",
-  ROLLED_BACK: "bg-slate-200 text-slate-600",
+  PENDING: "bg-amber-500/20 text-amber-300 border border-amber-500/30",
+  SUCCESS: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
+  FAILED: "bg-rose-500/20 text-rose-300 border border-rose-500/30",
+  REFUNDED: "bg-slate-500/20 text-slate-300 border border-slate-500/30",
+  ROLLED_BACK: "bg-slate-500/20 text-slate-300 border border-slate-500/30",
 };
 
 const TypeBadge = ({ type }) => {
-  const t = TYPE_LABELS[type] || { label: type, cls: "bg-slate-100 text-slate-600" };
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${t.cls}`}>{t.label}</span>;
+  const t = TYPE_LABELS[type] || {
+    label: type,
+    cls: "bg-slate-500/20 text-slate-300 border border-slate-500/30",
+  };
+  return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${t.cls}`}>{t.label}</span>;
 };
 
 const Transactions = () => {
@@ -43,9 +45,10 @@ const Transactions = () => {
       apiClient.get("/transactions", { params: filters }).then((r) => r.data),
   });
 
-  if (transactionsQuery.isLoading) return <div className="p-8">Loading transactions...</div>;
+  if (transactionsQuery.isLoading)
+    return <div className="p-8 text-slate-300">Loading transactions...</div>;
   if (transactionsQuery.isError)
-    return <div className="p-8 text-red-600">Failed to load transactions.</div>;
+    return <div className="p-8 text-rose-400">Failed to load transactions.</div>;
 
   const { summary, total, transactions } = transactionsQuery.data;
 
@@ -69,44 +72,41 @@ const Transactions = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Transactions</h1>
-        <div className="flex items-center gap-3">
-          <button type="button" className={btnSecondary} onClick={handleExport}>
-            Export CSV
-          </button>
-          <LogoutButton />
-        </div>
+        <h2 className="text-xl font-bold text-white tracking-tight">Transactions</h2>
+        <button type="button" className={btnSecondary} onClick={handleExport}>
+          Export CSV
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <div className={cardClass}>
-          <div className="text-xs text-slate-500">Collected</div>
-          <div className="text-lg font-semibold text-slate-900">
+          <div className="text-xs font-medium text-slate-400">Collected</div>
+          <div className="text-xl font-bold text-white mt-1">
             {formatPrice(summary?.collected || 0)}
           </div>
         </div>
         <div className={cardClass}>
-          <div className="text-xs text-slate-500">Refunds</div>
-          <div className="text-lg font-semibold text-red-600">
+          <div className="text-xs font-medium text-slate-400">Refunds</div>
+          <div className="text-xl font-bold text-rose-400 mt-1">
             −{formatPrice(summary?.refunded || 0)}
           </div>
         </div>
         <div className={cardClass}>
-          <div className="text-xs text-slate-500">Net</div>
-          <div className="text-lg font-semibold text-emerald-700">
+          <div className="text-xs font-medium text-slate-400">Net</div>
+          <div className="text-xl font-bold text-emerald-400 mt-1">
             {formatPrice(summary?.net || 0)}
           </div>
         </div>
         <div className={cardClass}>
-          <div className="text-xs text-slate-500">Transactions</div>
-          <div className="text-lg font-semibold text-slate-900">{summary?.count || 0}</div>
+          <div className="text-xs font-medium text-slate-400">Transactions</div>
+          <div className="text-xl font-bold text-white mt-1">{summary?.count || 0}</div>
         </div>
       </div>
 
       <div className={cardClass}>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Type</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Type</label>
             <select className={inputClass} value={filters.type} onChange={setFilter("type")}>
               <option value="">All types</option>
               {Object.entries(TYPE_LABELS).map(([value, { label }]) => (
@@ -117,7 +117,7 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
             <select className={inputClass} value={filters.status} onChange={setFilter("status")}>
               <option value="">All statuses</option>
               {Object.keys(STATUS_LABELS).map((value) => (
@@ -128,7 +128,7 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">From</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">From</label>
             <input
               className={inputClass}
               type="date"
@@ -137,7 +137,7 @@ const Transactions = () => {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">To</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">To</label>
             <input
               className={inputClass}
               type="date"
@@ -147,35 +147,37 @@ const Transactions = () => {
           </div>
         </div>
 
-        <p className="text-xs text-slate-400 mb-3">{total} transaction(s)</p>
+        <p className="text-xs text-slate-400 mb-4">{total} transaction(s)</p>
         {transactions.length === 0 ? (
-          <p className="text-sm text-slate-500">No transactions match this filter.</p>
+          <p className="text-sm text-slate-400">No transactions match this filter.</p>
         ) : (
-          <ul className="divide-y divide-slate-100 text-sm">
+          <ul className="divide-y divide-white/10 text-sm">
             {transactions.map((tx) => (
               <li key={tx.id} className="flex flex-wrap items-center gap-3 py-3">
-                <span className="text-slate-500 w-20 shrink-0">
+                <span className="text-slate-400 text-xs w-24 shrink-0">
                   {new Date(tx.createdAt).toLocaleDateString()}
                 </span>
                 <TypeBadge type={tx.type} />
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_LABELS[tx.status] || "bg-slate-100"}`}>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_LABELS[tx.status] || "bg-slate-500/20 text-slate-300"}`}>
                   {tx.status}
                 </span>
-                <span className="text-slate-500 shrink-0">{tx.plan?.slug || "—"}</span>
+                <span className="text-slate-400 text-xs shrink-0">{tx.plan?.slug || "—"}</span>
                 <span
-                  className={`ml-auto font-medium ${tx.type === "refund" ? "text-red-600" : "text-slate-900"}`}
+                  className={`ml-auto font-bold ${tx.type === "refund" ? "text-rose-400" : "text-white"}`}
                 >
                   {tx.type === "refund" ? "−" : ""}
                   {formatPrice(tx.amountCents, tx.currency)}
                 </span>
-                <a
-                  href={tx.metadata?.invoiceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-indigo-600 hover:underline"
-                >
-                  Invoice
-                </a>
+                {tx.metadata?.invoiceUrl && (
+                  <a
+                    href={tx.metadata.invoiceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-indigo-400 hover:text-indigo-300 underline"
+                  >
+                    Invoice
+                  </a>
+                )}
               </li>
             ))}
           </ul>

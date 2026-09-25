@@ -1,39 +1,23 @@
-import { Link, Outlet } from "react-router";
-import useAuth from "../hooks/useAuth";
-import LogoutButton from "../components/LogoutButton";
+import { Outlet, useLocation } from "react-router";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+
+// Routes that render their own full-page layout (auth pages)
+const AUTH_ROUTES = ["/login", "/register", "/forgot-password"];
 
 const Root = () => {
-  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const isAuthPage = AUTH_ROUTES.includes(pathname);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="text-lg font-semibold text-slate-900">
-            TeamNest
-          </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            {user ? (
-              <>
-                <span className="hidden sm:inline text-slate-500">{user.email}</span>
-                <LogoutButton />
-              </>
-            ) : (
-              <Link to="/login" className="font-medium text-slate-700 hover:text-slate-900">
-                Log in
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-gradient-animated">
+      <Navbar />
 
-      <main className="flex-1">
+      <main className={`flex-1 ${isAuthPage ? "" : "pt-16"}`}>
         <Outlet />
       </main>
 
-      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-        TeamNest — multi-tenant collaboration platform
-      </footer>
+      {!isAuthPage && <Footer />}
     </div>
   );
 };

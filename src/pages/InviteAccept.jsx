@@ -3,18 +3,19 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import apiClient from "../utils/apiClient";
 import useAuth from "../hooks/useAuth";
 import {
+  authContainer,
   btnPrimary,
   cardClass,
-  authContainer,
   inputClass,
   labelClass,
 } from "../utils/ui";
 
 const InviteAccept = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") || "";
-  const { backendUser, signInUser, fetchProfile } = useAuth();
+  const [params] = useSearchParams();
+  const token = params.get("token") || "";
   const navigate = useNavigate();
+  const { backendUser, fetchProfile } = useAuth();
+
   const [form, setForm] = useState({ name: "", password: "", confirmPassword: "" });
   const [message, setMessage] = useState({ type: "", text: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -22,25 +23,26 @@ const InviteAccept = () => {
   const setField = (field) => (event) =>
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
 
-  const redirectByRole = (role) =>
-    navigate(role === "org_admin" ? "/org" : "/member", { replace: true });
-
   const handleJoin = async (event) => {
     event.preventDefault();
     setMessage({ type: "", text: "" });
+    if (form.password.length < 8) {
+      setMessage({ type: "error", text: "Password must be at least 8 characters long." });
+      return;
+    }
     if (form.password !== form.confirmPassword) {
       setMessage({ type: "error", text: "Passwords do not match." });
       return;
     }
     setSubmitting(true);
     try {
-      const { data } = await apiClient.post("/auth/join", {
+      await apiClient.post("/members/accept", {
         token,
         name: form.name,
         password: form.password,
       });
-      await signInUser(data.user.email, form.password);
-      redirectByRole(data.org.role);
+      await fetchProfile();
+      navigate("/member");
     } catch (err) {
       setMessage({
         type: "error",
@@ -54,9 +56,9 @@ const InviteAccept = () => {
     setMessage({ type: "", text: "" });
     setSubmitting(true);
     try {
-      const { data } = await apiClient.post("/members/accept", { token });
+      await apiClient.post("/members/accept", { token });
       await fetchProfile();
-      redirectByRole(data.org.role);
+      navigate("/member");
     } catch (err) {
       setMessage({
         type: "error",
@@ -69,9 +71,9 @@ const InviteAccept = () => {
   if (!token || token.length < 10) {
     return (
       <div className={authContainer}>
-        <div className={cardClass}>
-          <h1 className="text-xl font-semibold text-slate-900 mb-2">Invalid invitation link</h1>
-          <p className="text-sm text-slate-600">
+        <div className={`${cardClass} max-w-md w-full`}>
+          <h1 className="text-xl font-bold text-white mb-2">Invalid invitation link</h1>
+          <p className="text-sm text-slate-300">
             This link is missing a valid invitation token. Ask your organization admin for a fresh
             invitation link.
           </p>
@@ -82,9 +84,9 @@ const InviteAccept = () => {
 
   return (
     <div className={authContainer}>
-      <div className={cardClass}>
-        <h1 className="text-xl font-semibold text-slate-900 mb-1">Join your team</h1>
-        <p className="text-sm text-slate-600 mb-6">
+      <div className={`${cardClass} max-w-md w-full`}>
+        <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Join your team</h1>
+        <p className="text-sm text-slate-300 mb-6">
           {backendUser
             ? "You are signed in. Confirm the invitation to join your organization."
             : "Create your account to accept the invitation."}
@@ -93,10 +95,10 @@ const InviteAccept = () => {
         {message.text && (
           <p
             role="alert"
-            className={`text-sm rounded-md border px-3 py-2 mb-4 ${
+            className={`text-sm rounded-xl border px-4 py-3 mb-6 ${
               message.type === "error"
-                ? "text-red-600 bg-red-50 border-red-200"
-                : "text-emerald-700 bg-emerald-50 border-emerald-200"
+                ? "text-rose-400 bg-rose-500/10 border-rose-500/30"
+                : "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
             }`}
           >
             {message.text}
@@ -148,9 +150,9 @@ const InviteAccept = () => {
             <button type="submit" className={btnPrimary} disabled={submitting}>
               {submitting ? "Joining..." : "Join organization"}
             </button>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400 pt-2">
               Already have an account?{" "}
-              <Link to="/login" className="text-indigo-600 hover:underline">
+              <Link to="/login" className="text-indigo-400 hover:text-indigo-300 underline font-medium">
                 Log in first
               </Link>
               , then reopen this link.

@@ -1,28 +1,26 @@
-export const btnPrimary =
-  "inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
+// ─── Button classes ────────────────────────────────────────────
+export const btnPrimary = "btn-primary";
+export const btnSecondary = "btn-secondary";
 
-export const btnSecondary =
-  "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2";
+// ─── Form classes ──────────────────────────────────────────────
+export const inputClass = "input-glass";
+export const labelClass = "label-glass";
 
-export const inputClass =
-  "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500";
-
-export const labelClass = "block text-sm font-medium text-slate-700 mb-1";
-
-export const cardClass =
-  "bg-white rounded-lg border border-slate-200 shadow-sm p-6";
-
+// ─── Layout ────────────────────────────────────────────────────
+export const cardClass = "glass-card p-8";
 export const pageContainer = "max-w-5xl mx-auto px-4 py-10";
+export const authContainer =
+  "min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-animated relative overflow-hidden";
 
-export const authContainer = "max-w-md mx-auto px-4 py-12";
-
+// ─── Formatters ────────────────────────────────────────────────
 export const formatPrice = (cents, currency = "usd") =>
   new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
 
+// ─── Status badge styles ───────────────────────────────────────
 export const statusStyle = {
-  ACTIVE: "bg-emerald-100 text-emerald-700",
-  PENDING: "bg-amber-100 text-amber-700",
-  SUSPENDED: "bg-red-100 text-red-700",
-  CANCELLED: "bg-slate-200 text-slate-600",
-  TRIAL: "bg-sky-100 text-sky-700",
+  ACTIVE:    "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+  PENDING:   "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+  SUSPENDED: "bg-red-500/20 text-red-400 border border-red-500/30",
+  CANCELLED: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
+  TRIAL:     "bg-sky-500/20 text-sky-400 border border-sky-500/30",
 };

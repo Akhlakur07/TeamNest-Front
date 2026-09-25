@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../../utils/apiClient";
-import LogoutButton from "../../components/LogoutButton";
 import { btnPrimary, btnSecondary, inputClass, labelClass, cardClass, formatPrice } from "../../utils/ui";
 
 const emptyForm = {
   name: "",
   slug: "",
   description: "",
-  price: "", // dollars, converted to cents on submit
+  price: "",
   billingInterval: "monthly",
   features: "",
   isEnabled: true,
@@ -86,26 +85,26 @@ const Plans = () => {
   const setField = (field) => (event) =>
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
 
-  if (plansQuery.isLoading) return <div className="p-8">Loading plans...</div>;
+  if (plansQuery.isLoading)
+    return <div className="p-8 text-slate-300">Loading plans...</div>;
   if (plansQuery.isError)
-    return <div className="p-8 text-red-600">Failed to load plans.</div>;
+    return <div className="p-8 text-rose-400">Failed to load plans.</div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Plans management</h1>
-        <LogoutButton />
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-white tracking-tight">Plans management</h2>
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-4">
+        <p role="alert" className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3 mb-6">
           {error}
         </p>
       )}
 
       <div className={cardClass}>
-        <h2 className="text-sm font-semibold text-slate-900 mb-4">
-          {editingId ? `Edit plan` : "Create plan"}
+        <h2 className="text-base font-semibold text-white mb-4">
+          {editingId ? "Edit plan" : "Create new plan"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -149,15 +148,16 @@ const Plans = () => {
             <label className={labelClass}>Features (one per line)</label>
             <textarea className={inputClass} rows={4} value={form.features} onChange={setField("features")} />
           </div>
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2.5 text-sm text-slate-300 cursor-pointer">
             <input
               type="checkbox"
+              className="accent-indigo-500 rounded"
               checked={form.isEnabled}
               onChange={(event) => setForm((prev) => ({ ...prev, isEnabled: event.target.checked }))}
             />
             Enabled (available for signup)
           </label>
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button type="submit" className={btnPrimary} disabled={submitting}>
               {submitting ? "Saving..." : editingId ? "Save changes" : "Create plan"}
             </button>
@@ -179,22 +179,26 @@ const Plans = () => {
 
       <div className="mt-6 space-y-3">
         {plansQuery.data.map((plan) => (
-          <div key={plan.id} className="rounded-lg border border-slate-200 bg-white p-4">
+          <div key={plan.id} className="glass-card p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-medium text-slate-900">{plan.name}</h3>
+                <div className="flex items-center gap-2.5">
+                  <h3 className="text-base font-semibold text-white">{plan.name}</h3>
                   <span className="text-xs text-slate-400">/{plan.slug}</span>
                   {!plan.isEnabled && (
-                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                    <span className="rounded-full bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 text-xs font-semibold text-amber-300">
                       Disabled
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-slate-500 mt-1">
-                  {formatPrice(plan.priceCents, plan.currency)}
+                <p className="text-sm text-slate-300 mt-1">
+                  <span className="font-semibold text-white">
+                    {formatPrice(plan.priceCents, plan.currency)}
+                  </span>
                   {plan.billingInterval === "yearly" ? "/year" : "/month"}
-                  {plan.stripePriceId ? " · Stripe price linked" : " · No Stripe price"}
+                  <span className="text-slate-400">
+                    {plan.stripePriceId ? " · Stripe linked" : " · No Stripe price"}
+                  </span>
                 </p>
               </div>
               <div className="flex gap-2">
@@ -207,7 +211,7 @@ const Plans = () => {
                 </button>
                 <button
                   type="button"
-                  className={plan.isEnabled ? `${btnSecondary} text-red-600` : btnPrimary}
+                  className={plan.isEnabled ? `${btnSecondary} !text-rose-400 !border-rose-500/30 hover:!border-rose-500/60` : btnPrimary}
                   onClick={() => toggleEnabled(plan)}
                 >
                   {plan.isEnabled ? "Disable" : "Enable"}
