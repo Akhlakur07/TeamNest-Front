@@ -84,7 +84,6 @@ const Login = () => {
             <div className="relative z-10 w-full max-w-sm">
               <Lottie
                 src={loginAnimation}
-                animationData={loginAnimation}
                 loop
                 autoplay
                 className="w-full drop-shadow-2xl"

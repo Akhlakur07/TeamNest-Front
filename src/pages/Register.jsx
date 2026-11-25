@@ -1,13 +1,27 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Lottie } from "lottie-react";
 import apiClient from "../utils/apiClient";
 import useAuth from "../hooks/useAuth";
 import PlanPicker from "../components/PlanPicker";
 import registerAnimation from "../assets/lottie/register.json";
 
+const EyeIcon = ({ open }) =>
+  open ? (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+    </svg>
+  ) : (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  );
+
 const Register = () => {
   const { signInUser } = useAuth();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
     organizationName: "",
     adminName: "",
@@ -15,11 +29,18 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(() => searchParams.get("plan") || null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const plansQuery = useQuery({
+    queryKey: ["plans"],
+    queryFn: () => apiClient.get("/plans").then((r) => r.data.plans),
+  });
+  const selectedPlanObj = plansQuery.data?.find((p) => p.id === selectedPlan);
+  const isFreePlan = selectedPlanObj?.priceCents === 0;
 
   const setField = (field) => (event) =>
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
@@ -89,18 +110,6 @@ const Register = () => {
     },
   ];
 
-  const EyeIcon = ({ open }) =>
-    open ? (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-      </svg>
-    ) : (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-      </svg>
-    );
-
   return (
     <div className="min-h-screen bg-gradient-animated flex items-center justify-center px-4 py-8 relative overflow-hidden">
       {/* Background blobs */}
@@ -161,13 +170,20 @@ const Register = () => {
                     </div>
                     <input
                       id={id}
+                      name={field}
                       type={type}
                       className="input-glass !pl-10"
                       value={form[field]}
                       onChange={setField(field)}
                       placeholder={placeholder}
                       required
-                      autoComplete={type === "email" ? "email" : "off"}
+                      autoComplete={
+                        type === "email"
+                          ? "email"
+                          : field === "adminName"
+                            ? "name"
+                            : "organization"
+                      }
                     />
                   </div>
                 </div>
@@ -265,10 +281,10 @@ const Register = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Setting up payment…
+                    {isFreePlan ? "Creating workspace…" : "Setting up payment…"}
                   </span>
                 ) : (
-                  "Continue to payment →"
+                  isFreePlan ? "Create free workspace →" : "Continue to payment →"
                 )}
               </button>
             </form>
@@ -280,7 +296,6 @@ const Register = () => {
             <div className="relative z-10 w-full max-w-sm">
               <Lottie
                 src={registerAnimation}
-                animationData={registerAnimation}
                 loop
                 autoplay
                 className="w-full drop-shadow-2xl"

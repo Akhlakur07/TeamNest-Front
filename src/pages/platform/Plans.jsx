@@ -109,16 +109,18 @@ const Plans = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Name</label>
-              <input className={inputClass} value={form.name} onChange={setField("name")} required />
+              <label htmlFor="plan-name" className={labelClass}>Name</label>
+              <input id="plan-name" name="name" className={inputClass} value={form.name} onChange={setField("name")} required />
             </div>
             <div>
-              <label className={labelClass}>Slug</label>
-              <input className={inputClass} value={form.slug} onChange={setField("slug")} required />
+              <label htmlFor="plan-slug" className={labelClass}>Slug</label>
+              <input id="plan-slug" name="slug" className={inputClass} value={form.slug} onChange={setField("slug")} required />
             </div>
             <div>
-              <label className={labelClass}>Price (USD)</label>
+              <label htmlFor="plan-price" className={labelClass}>Price (USD)</label>
               <input
+                id="plan-price"
+                name="price"
                 className={inputClass}
                 type="number"
                 min="0"
@@ -129,8 +131,10 @@ const Plans = () => {
               />
             </div>
             <div>
-              <label className={labelClass}>Billing interval</label>
+              <label htmlFor="plan-interval" className={labelClass}>Billing interval</label>
               <select
+                id="plan-interval"
+                name="billingInterval"
                 className={inputClass}
                 value={form.billingInterval}
                 onChange={setField("billingInterval")}
@@ -141,15 +145,17 @@ const Plans = () => {
             </div>
           </div>
           <div>
-            <label className={labelClass}>Description</label>
-            <textarea className={inputClass} rows={2} value={form.description} onChange={setField("description")} />
+            <label htmlFor="plan-description" className={labelClass}>Description</label>
+            <textarea id="plan-description" name="description" className={inputClass} rows={2} value={form.description} onChange={setField("description")} />
           </div>
           <div>
-            <label className={labelClass}>Features (one per line)</label>
-            <textarea className={inputClass} rows={4} value={form.features} onChange={setField("features")} />
+            <label htmlFor="plan-features" className={labelClass}>Features (one per line)</label>
+            <textarea id="plan-features" name="features" className={inputClass} rows={4} value={form.features} onChange={setField("features")} />
           </div>
-          <label className="flex items-center gap-2.5 text-sm text-slate-300 cursor-pointer">
+          <label htmlFor="plan-enabled" className="flex items-center gap-2.5 text-sm text-slate-300 cursor-pointer">
             <input
+              id="plan-enabled"
+              name="isEnabled"
               type="checkbox"
               className="accent-indigo-500 rounded"
               checked={form.isEnabled}

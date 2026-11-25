@@ -9,16 +9,14 @@ const Navbar = () => {
   const { user, backendUser } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpenPath, setMobileOpenPath] = useState(null);
+  const mobileOpen = mobileOpenPath === location.pathname;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // Close mobile menu on route change
-  useEffect(() => setMobileOpen(false), [location.pathname]);
 
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/register";
@@ -48,12 +46,12 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center gap-6 text-sm" id="nav-desktop">
           {!isAuthPage && (
             <>
-              <a href="#features" className="text-slate-400 hover:text-white transition-colors duration-200">Features</a>
-              <a href="#pricing" className="text-slate-400 hover:text-white transition-colors duration-200">Pricing</a>
-              <a href="#about" className="text-slate-400 hover:text-white transition-colors duration-200">About</a>
+              <a href="/#features" className="text-slate-400 hover:text-white transition-colors duration-200">Features</a>
+              <a href="/#pricing" className="text-slate-400 hover:text-white transition-colors duration-200">Pricing</a>
+              <a href="/#about" className="text-slate-400 hover:text-white transition-colors duration-200">About</a>
             </>
           )}
-          {user ? (
+          {user && backendUser ? (
             <div className="flex items-center gap-4 ml-2">
               <Link
                 to={dashboardPath}
@@ -83,7 +81,9 @@ const Navbar = () => {
         <button
           id="nav-mobile-toggle"
           className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/10 transition-colors"
-          onClick={() => setMobileOpen((v) => !v)}
+          onClick={() =>
+            setMobileOpenPath((p) => (p === location.pathname ? null : location.pathname))
+          }
           aria-label="Toggle menu"
         >
           <span className={`block w-5 h-0.5 bg-slate-300 rounded transition-all duration-200 ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
@@ -101,12 +101,12 @@ const Navbar = () => {
         <div className="px-4 py-4 flex flex-col gap-3 text-sm" id="nav-mobile">
           {!isAuthPage && (
             <>
-              <a href="#features" className="text-slate-300 hover:text-white py-1 transition-colors">Features</a>
-              <a href="#pricing" className="text-slate-300 hover:text-white py-1 transition-colors">Pricing</a>
-              <a href="#about" className="text-slate-300 hover:text-white py-1 transition-colors">About</a>
+              <a href="/#features" className="text-slate-300 hover:text-white py-1 transition-colors">Features</a>
+              <a href="/#pricing" className="text-slate-300 hover:text-white py-1 transition-colors">Pricing</a>
+              <a href="/#about" className="text-slate-300 hover:text-white py-1 transition-colors">About</a>
             </>
           )}
-          {user ? (
+          {user && backendUser ? (
             <>
               <Link
                 to={dashboardPath}

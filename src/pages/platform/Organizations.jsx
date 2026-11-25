@@ -21,8 +21,12 @@ const Organizations = () => {
   });
 
   const applyFilter = (next) => {
-    if (next.status) {
-      setSearchParams({ search: next.search || "", status: next.status, page: "1" });
+    if (next.status !== undefined) {
+      setSearchParams({
+        search: next.search !== undefined ? next.search : search,
+        status: next.status,
+        page: "1",
+      });
     } else if (next.search !== undefined) {
       setSearchParams({ search: next.search, status, page: "1" });
     }
@@ -53,12 +57,18 @@ const Organizations = () => {
         }}
       >
         <input
+          id="admin-orgs-search"
+          name="search"
+          aria-label="Search organizations by name or email"
           className={inputClass}
           placeholder="Search name or email"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />
         <select
+          id="admin-orgs-status"
+          name="status"
+          aria-label="Filter organizations by status"
           className={inputClass}
           value={status}
           onChange={(e) => applyFilter({ status: e.target.value })}

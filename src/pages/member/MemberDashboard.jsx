@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PanelShell from "../../components/PanelShell";
 import UserCard from "../../components/UserCard";
 import LogoutButton from "../../components/LogoutButton";
@@ -15,7 +15,8 @@ import {
 } from "../../utils/ui";
 
 const MemberDashboard = () => {
-  const { backendUser, fetchProfile } = useAuth();
+  const { backendUser, fetchProfile, refreshSession } = useAuth();
+  const queryClient = useQueryClient();
   const [name, setName] = useState(backendUser?.name || "");
   const [pw, setPw] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [profileMsg, setProfileMsg] = useState({ type: "", text: "" });
@@ -43,6 +44,7 @@ const MemberDashboard = () => {
     try {
       await apiClient.patch("/account/profile", { name });
       await fetchProfile();
+      queryClient.invalidateQueries({ queryKey: ["members"] });
       setProfileMsg({ type: "ok", text: "Profile updated." });
     } catch (err) {
       setProfileMsg({ type: "err", text: err?.response?.data?.message || "Could not update profile." });
@@ -64,6 +66,13 @@ const MemberDashboard = () => {
         currentPassword: pw.currentPassword,
         newPassword: pw.newPassword,
       });
+      if (backendUser?.email) {
+        try {
+          await refreshSession(backendUser.email, pw.newPassword);
+        } catch {
+          // Password already updated; ignore silent refresh errors.
+        }
+      }
       setPw({ currentPassword: "", newPassword: "", confirmPassword: "" });
       setPwMsg({ type: "ok", text: "Password updated successfully." });
     } catch (err) {
@@ -89,11 +98,14 @@ const MemberDashboard = () => {
         <h2 className="text-base font-semibold text-white mb-4">Profile</h2>
         <form onSubmit={handleProfile} className="space-y-4 mb-6">
           <div>
-            <label className={labelClass}>Name</label>
+            <label htmlFor="member-name" className={labelClass}>Name</label>
             <input
+              id="member-name"
+              name="name"
               className={inputClass}
               value={name}
               onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
               required
             />
           </div>
@@ -117,35 +129,54 @@ const MemberDashboard = () => {
         <div className="border-t border-white/10 pt-5">
           <h3 className="text-base font-semibold text-white mb-4">Change password</h3>
           <form onSubmit={handlePassword} className="space-y-4">
+            <input
+              type="email"
+              name="username"
+              autoComplete="username"
+              value={backendUser?.email || ""}
+              readOnly
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
             <div>
-              <label className={labelClass}>Current password</label>
+              <label htmlFor="member-current-password" className={labelClass}>Current password</label>
               <input
+                id="member-current-password"
+                name="currentPassword"
                 className={inputClass}
                 type="password"
                 value={pw.currentPassword}
                 onChange={setPwField("currentPassword")}
+                autoComplete="current-password"
                 required
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>New password</label>
+                <label htmlFor="member-new-password" className={labelClass}>New password</label>
                 <input
+                  id="member-new-password"
+                  name="newPassword"
                   className={inputClass}
                   type="password"
                   value={pw.newPassword}
                   onChange={setPwField("newPassword")}
                   placeholder="At least 8 characters"
+                  autoComplete="new-password"
                   required
                 />
               </div>
               <div>
-                <label className={labelClass}>Confirm new password</label>
+                <label htmlFor="member-confirm-password" className={labelClass}>Confirm new password</label>
                 <input
+                  id="member-confirm-password"
+                  name="confirmPassword"
                   className={inputClass}
                   type="password"
                   value={pw.confirmPassword}
                   onChange={setPwField("confirmPassword")}
+                  autoComplete="new-password"
                   required
                 />
               </div>

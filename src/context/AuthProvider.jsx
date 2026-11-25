@@ -38,14 +38,46 @@ const AuthProvider = ({ children }) => {
 
   const signInUser = async (email, password) => {
     setLoading(true);
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      setUser(cred.user);
+      return await fetchProfile();
+    } catch (err) {
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+      setUser(null);
+      setBackendUser(null);
+      setBackendOrg(null);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshSession = async (email, password) => {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    setUser(cred.user);
     return fetchProfile();
   };
 
   const googleSignin = async () => {
     setLoading(true);
-    await signInWithPopup(auth, googleProvider);
-    return fetchProfile();
+    try {
+      const cred = await signInWithPopup(auth, googleProvider);
+      setUser(cred.user);
+      return await fetchProfile();
+    } catch (err) {
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+      setUser(null);
+      setBackendUser(null);
+      setBackendOrg(null);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logOut = async () => {
@@ -63,7 +95,12 @@ const AuthProvider = ({ children }) => {
         try {
           const profile = await fetchProfile();
           if (active) setBackendUser(profile);
-        } catch {
+        } catch (err) {
+          const status = err?.response?.status;
+          if (status === 401 || status === 403) {
+            await signOut(auth);
+            if (active) setUser(null);
+          }
           if (active) {
             setBackendUser(null);
             setBackendOrg(null);
@@ -93,6 +130,7 @@ const AuthProvider = ({ children }) => {
     loading,
     createUser,
     signInUser,
+    refreshSession,
     googleSignin,
     logOut,
     updateUser,

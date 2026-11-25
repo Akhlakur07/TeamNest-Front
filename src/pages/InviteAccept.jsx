@@ -14,7 +14,7 @@ const InviteAccept = () => {
   const [params] = useSearchParams();
   const token = params.get("token") || "";
   const navigate = useNavigate();
-  const { backendUser, fetchProfile } = useAuth();
+  const { backendUser, fetchProfile, signInUser } = useAuth();
 
   const [form, setForm] = useState({ name: "", password: "", confirmPassword: "" });
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -36,12 +36,12 @@ const InviteAccept = () => {
     }
     setSubmitting(true);
     try {
-      await apiClient.post("/members/accept", {
+      const { data: joined } = await apiClient.post("/auth/join", {
         token,
         name: form.name,
         password: form.password,
       });
-      await fetchProfile();
+      await signInUser(joined.user.email, form.password);
       navigate("/member");
     } catch (err) {
       setMessage({
@@ -117,33 +117,42 @@ const InviteAccept = () => {
         ) : (
           <form onSubmit={handleJoin} className="space-y-4" noValidate>
             <div>
-              <label className={labelClass}>Your name</label>
+              <label htmlFor="invite-name" className={labelClass}>Your name</label>
               <input
+                id="invite-name"
+                name="name"
                 className={inputClass}
                 value={form.name}
                 onChange={setField("name")}
                 placeholder="Jane Doe"
+                autoComplete="name"
                 required
               />
             </div>
             <div>
-              <label className={labelClass}>Password</label>
+              <label htmlFor="invite-password" className={labelClass}>Password</label>
               <input
+                id="invite-password"
+                name="password"
                 className={inputClass}
                 type="password"
                 value={form.password}
                 onChange={setField("password")}
                 placeholder="At least 8 characters"
+                autoComplete="new-password"
                 required
               />
             </div>
             <div>
-              <label className={labelClass}>Confirm password</label>
+              <label htmlFor="invite-confirm-password" className={labelClass}>Confirm password</label>
               <input
+                id="invite-confirm-password"
+                name="confirmPassword"
                 className={inputClass}
                 type="password"
                 value={form.confirmPassword}
                 onChange={setField("confirmPassword")}
+                autoComplete="new-password"
                 required
               />
             </div>

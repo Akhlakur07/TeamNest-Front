@@ -1,6 +1,9 @@
 import { Link } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import useAuth from "../hooks/useAuth";
 import roleHome from "../utils/roles";
+import apiClient from "../utils/apiClient";
+import { formatPrice } from "../utils/ui";
 
 /* ─── Data ────────────────────────────────────────────────────── */
 const features = [
@@ -82,12 +85,16 @@ const steps = [
 /* ─── Component ───────────────────────────────────────────────── */
 const Home = () => {
   const { user, backendUser, loading } = useAuth();
+  const plansQuery = useQuery({
+    queryKey: ["plans"],
+    queryFn: () => apiClient.get("/plans").then((r) => r.data.plans),
+  });
+  const plans = plansQuery.data || [];
+  const isAuthenticated = Boolean(user && backendUser);
 
   const dashboardTarget = backendUser
     ? roleHome(backendUser.role)
-    : user
-      ? "/"
-      : "/login";
+    : "/login";
 
   return (
     <div className="overflow-x-hidden">
@@ -134,7 +141,7 @@ const Home = () => {
 
           {/* CTAs */}
           <div className="fade-in-up-3 flex flex-wrap items-center justify-center gap-4">
-            {loading ? null : user ? (
+            {loading ? null : isAuthenticated ? (
               <Link to={dashboardTarget} className="btn-primary text-base !py-3 !px-8" id="hero-dashboard-btn">
                 Go to dashboard →
               </Link>
@@ -282,48 +289,60 @@ const Home = () => {
           </p>
 
           <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              { name: "Starter", price: "$29", period: "/month", features: ["Up to 10 members", "5 GB storage", "Basic analytics", "Email support"], popular: false },
-              { name: "Growth", price: "$79", period: "/month", features: ["Up to 50 members", "50 GB storage", "Advanced analytics", "Priority support", "Custom roles"], popular: true },
-              { name: "Enterprise", price: "Custom", period: "", features: ["Unlimited members", "Unlimited storage", "Dedicated support", "SLA guarantee", "Custom integrations"], popular: false },
-            ].map(({ name, price, period, features, popular }) => (
-              <div
-                key={name}
-                className={`glass-card p-7 relative ${
-                  popular
-                    ? "border-indigo-500/50 shadow-[0_0_40px_rgba(99,102,241,0.2)]"
-                    : ""
-                }`}
-              >
-                {popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow-lg">
-                    Most popular
+            {plansQuery.isLoading ? (
+              [1, 2, 3].map((i) => (
+                <div key={i} className="glass-card p-7 h-72 shimmer" />
+              ))
+            ) : plans.length === 0 ? (
+              <p className="col-span-full text-sm text-slate-400">
+                Pricing plans are currently unavailable.
+              </p>
+            ) : (
+              plans.map((plan) => {
+                const popular = plan.slug === "pro";
+                const period = plan.billingInterval === "yearly" ? "/year" : "/month";
+                return (
+                  <div
+                    key={plan.id}
+                    className={`glass-card p-7 relative flex flex-col ${
+                      popular
+                        ? "border-indigo-500/50 shadow-[0_0_40px_rgba(99,102,241,0.2)]"
+                        : ""
+                    }`}
+                  >
+                    {popular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow-lg">
+                        Most popular
+                      </div>
+                    )}
+                    <h3 className="text-lg font-semibold text-white mb-1">{plan.name}</h3>
+                    <div className="flex items-baseline gap-0.5 mb-5">
+                      <span className="text-3xl font-extrabold gradient-text">
+                        {formatPrice(plan.priceCents, plan.currency)}
+                      </span>
+                      <span className="text-slate-500 text-sm">{period}</span>
+                    </div>
+                    <ul className="space-y-2 mb-6 text-sm text-slate-400 flex-1 text-left">
+                      {(plan.features || []).map((f) => (
+                        <li key={f} className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      to={`/register?plan=${plan.id}`}
+                      className={popular ? "btn-primary w-full text-center" : "btn-secondary w-full text-center"}
+                      id={`pricing-${plan.slug}-btn`}
+                    >
+                      Get started
+                    </Link>
                   </div>
-                )}
-                <h3 className="text-lg font-semibold text-white mb-1">{name}</h3>
-                <div className="flex items-baseline gap-0.5 mb-5">
-                  <span className="text-3xl font-extrabold gradient-text">{price}</span>
-                  <span className="text-slate-500 text-sm">{period}</span>
-                </div>
-                <ul className="space-y-2 mb-6 text-sm text-slate-400">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/register"
-                  className={popular ? "btn-primary w-full text-center" : "btn-secondary w-full text-center"}
-                  id={`pricing-${name.toLowerCase()}-btn`}
-                >
-                  Get started
-                </Link>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
         </div>
       </section>
@@ -344,7 +363,7 @@ const Home = () => {
             Join thousands of organizations that trust TeamNest for their daily collaboration.
             Get started in under a minute.
           </p>
-          {!user && (
+          {!isAuthenticated && (
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link to="/register" className="btn-primary text-base !py-3.5 !px-10" id="cta-register-btn">
                 Create your workspace →

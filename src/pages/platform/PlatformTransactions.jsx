@@ -58,8 +58,10 @@ const PlatformTransactions = () => {
       <div className={cardClass}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-6 items-end">
           <div className="lg:col-span-2">
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Search</label>
+            <label htmlFor="admin-tx-search" className="block text-xs font-medium text-slate-400 mb-1.5">Search</label>
             <input
+              id="admin-tx-search"
+              name="search"
               className={inputClass}
               placeholder="Organization name or email"
               value={filters.search}
@@ -67,8 +69,8 @@ const PlatformTransactions = () => {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Type</label>
-            <select className={inputClass} value={filters.type} onChange={setFilter("type")}>
+            <label htmlFor="admin-tx-type" className="block text-xs font-medium text-slate-400 mb-1.5">Type</label>
+            <select id="admin-tx-type" name="type" className={inputClass} value={filters.type} onChange={setFilter("type")}>
               <option value="">All types</option>
               {Object.entries(TYPE_LABELS).map(([value, { label }]) => (
                 <option key={value} value={value}>
@@ -78,8 +80,8 @@ const PlatformTransactions = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
-            <select className={inputClass} value={filters.status} onChange={setFilter("status")}>
+            <label htmlFor="admin-tx-status" className="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
+            <select id="admin-tx-status" name="status" className={inputClass} value={filters.status} onChange={setFilter("status")}>
               <option value="">All statuses</option>
               {Object.keys(STATUS_LABELS).map((value) => (
                 <option key={value} value={value}>
@@ -89,8 +91,10 @@ const PlatformTransactions = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">From</label>
+            <label htmlFor="admin-tx-from" className="block text-xs font-medium text-slate-400 mb-1.5">From</label>
             <input
+              id="admin-tx-from"
+              name="from"
               className={inputClass}
               type="date"
               value={filters.from}
@@ -98,8 +102,10 @@ const PlatformTransactions = () => {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">To</label>
+            <label htmlFor="admin-tx-to" className="block text-xs font-medium text-slate-400 mb-1.5">To</label>
             <input
+              id="admin-tx-to"
+              name="to"
               className={inputClass}
               type="date"
               value={filters.to}

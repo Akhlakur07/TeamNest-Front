@@ -178,6 +178,8 @@ const Members = () => {
                     {m.role}
                   </span>
                   <select
+                    name={`role-${m.id}`}
+                    aria-label={`Role for ${m.name}`}
                     className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white outline-none focus:border-indigo-500"
                     value={m.role}
                     disabled={isSelf || changeRole.isPending}

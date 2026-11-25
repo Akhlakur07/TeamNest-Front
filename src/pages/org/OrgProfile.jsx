@@ -59,51 +59,66 @@ const OrgProfile = () => {
         <h2 className="text-base font-semibold text-white mb-4">Edit details</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={labelClass}>Your name</label>
+            <label htmlFor="org-admin-name" className={labelClass}>Your name</label>
             <input
+              id="org-admin-name"
+              name="name"
               className={inputClass}
               value={name}
               onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
               required
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Organization contact name</label>
+              <label htmlFor="org-contact-name" className={labelClass}>Organization contact name</label>
               <input
+                id="org-contact-name"
+                name="contactName"
                 className={inputClass}
                 value={form.contactName}
                 onChange={setField("contactName")}
+                autoComplete="name"
                 required
               />
             </div>
             <div>
-              <label className={labelClass}>Organization contact email</label>
+              <label htmlFor="org-contact-email" className={labelClass}>Organization contact email</label>
               <input
+                id="org-contact-email"
+                name="contactEmail"
                 className={inputClass}
                 type="email"
                 value={form.contactEmail}
                 onChange={setField("contactEmail")}
+                autoComplete="email"
                 required
               />
             </div>
             <div>
-              <label className={labelClass}>Phone</label>
+              <label htmlFor="org-phone" className={labelClass}>Phone</label>
               <input
+                id="org-phone"
+                name="phone"
                 className={inputClass}
                 value={form.phone}
                 onChange={setField("phone")}
                 placeholder="Optional"
+                autoComplete="tel"
               />
             </div>
             <div>
-              <label className={labelClass}>Billing email</label>
+              <label htmlFor="org-billing-email" className={labelClass}>Billing email</label>
               <input
+                id="org-billing-email"
+                name="billingEmail"
                 className={inputClass}
                 type="email"
                 value={form.billingEmail}
                 onChange={setField("billingEmail")}
                 placeholder="Used for invoices and receipts"
+                autoComplete="email"
               />
             </div>
           </div>

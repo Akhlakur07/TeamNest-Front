@@ -106,8 +106,8 @@ const Transactions = () => {
       <div className={cardClass}>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Type</label>
-            <select className={inputClass} value={filters.type} onChange={setFilter("type")}>
+            <label htmlFor="tx-filter-type" className="block text-xs font-medium text-slate-400 mb-1.5">Type</label>
+            <select id="tx-filter-type" name="type" className={inputClass} value={filters.type} onChange={setFilter("type")}>
               <option value="">All types</option>
               {Object.entries(TYPE_LABELS).map(([value, { label }]) => (
                 <option key={value} value={value}>
@@ -117,8 +117,8 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
-            <select className={inputClass} value={filters.status} onChange={setFilter("status")}>
+            <label htmlFor="tx-filter-status" className="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
+            <select id="tx-filter-status" name="status" className={inputClass} value={filters.status} onChange={setFilter("status")}>
               <option value="">All statuses</option>
               {Object.keys(STATUS_LABELS).map((value) => (
                 <option key={value} value={value}>
@@ -128,8 +128,10 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">From</label>
+            <label htmlFor="tx-filter-from" className="block text-xs font-medium text-slate-400 mb-1.5">From</label>
             <input
+              id="tx-filter-from"
+              name="from"
               className={inputClass}
               type="date"
               value={filters.from}
@@ -137,8 +139,10 @@ const Transactions = () => {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">To</label>
+            <label htmlFor="tx-filter-to" className="block text-xs font-medium text-slate-400 mb-1.5">To</label>
             <input
+              id="tx-filter-to"
+              name="to"
               className={inputClass}
               type="date"
               value={filters.to}
