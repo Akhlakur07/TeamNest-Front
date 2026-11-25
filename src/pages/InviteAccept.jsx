@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { ArrowRight, UserPlus } from "lucide-react";
 import apiClient from "../utils/apiClient";
 import useAuth from "../hooks/useAuth";
 import {
@@ -71,9 +72,11 @@ const InviteAccept = () => {
   if (!token || token.length < 10) {
     return (
       <div className={authContainer}>
-        <div className={`${cardClass} max-w-md w-full`}>
-          <h1 className="text-xl font-bold text-white mb-2">Invalid invitation link</h1>
-          <p className="text-sm text-slate-300">
+        <div className={`${cardClass} max-w-md w-full relative z-10`}>
+          <h1 className="font-display text-xl font-bold text-[var(--text-bright)] mb-2">
+            Invalid invitation link
+          </h1>
+          <p className="text-sm text-[var(--text-secondary)]">
             This link is missing a valid invitation token. Ask your organization admin for a fresh
             invitation link.
           </p>
@@ -84,9 +87,14 @@ const InviteAccept = () => {
 
   return (
     <div className={authContainer}>
-      <div className={`${cardClass} max-w-md w-full`}>
-        <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Join your team</h1>
-        <p className="text-sm text-slate-300 mb-6">
+      <div className={`${cardClass} max-w-md w-full relative z-10`}>
+        <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center mb-5">
+          <UserPlus className="w-5 h-5 text-[var(--accent-text)]" />
+        </div>
+        <h1 className="font-display text-2xl font-bold text-[var(--text-bright)] mb-1 tracking-tight">
+          Join your team
+        </h1>
+        <p className="text-sm text-[var(--text-secondary)] mb-6">
           {backendUser
             ? "You are signed in. Confirm the invitation to join your organization."
             : "Create your account to accept the invitation."}
@@ -108,7 +116,7 @@ const InviteAccept = () => {
         {backendUser ? (
           <button
             type="button"
-            className={btnPrimary}
+            className={`${btnPrimary} w-full`}
             onClick={handleAccept}
             disabled={submitting}
           >
@@ -117,7 +125,9 @@ const InviteAccept = () => {
         ) : (
           <form onSubmit={handleJoin} className="space-y-4" noValidate>
             <div>
-              <label htmlFor="invite-name" className={labelClass}>Your name</label>
+              <label htmlFor="invite-name" className={labelClass}>
+                Your name
+              </label>
               <input
                 id="invite-name"
                 name="name"
@@ -130,7 +140,9 @@ const InviteAccept = () => {
               />
             </div>
             <div>
-              <label htmlFor="invite-password" className={labelClass}>Password</label>
+              <label htmlFor="invite-password" className={labelClass}>
+                Password
+              </label>
               <input
                 id="invite-password"
                 name="password"
@@ -144,7 +156,9 @@ const InviteAccept = () => {
               />
             </div>
             <div>
-              <label htmlFor="invite-confirm-password" className={labelClass}>Confirm password</label>
+              <label htmlFor="invite-confirm-password" className={labelClass}>
+                Confirm password
+              </label>
               <input
                 id="invite-confirm-password"
                 name="confirmPassword"
@@ -156,12 +170,16 @@ const InviteAccept = () => {
                 required
               />
             </div>
-            <button type="submit" className={btnPrimary} disabled={submitting}>
+            <button type="submit" className={`${btnPrimary} w-full !py-2.5`} disabled={submitting}>
               {submitting ? "Joining..." : "Join organization"}
+              <ArrowRight className="w-4 h-4" />
             </button>
-            <p className="text-sm text-slate-400 pt-2">
+            <p className="text-sm text-[var(--text-muted)] pt-2">
               Already have an account?{" "}
-              <Link to="/login" className="text-indigo-400 hover:text-indigo-300 underline font-medium">
+              <Link
+                to="/login"
+                className="text-[var(--accent-text)] hover:underline font-medium"
+              >
                 Log in first
               </Link>
               , then reopen this link.

@@ -1,23 +1,29 @@
 import { Outlet } from "react-router";
+import {
+  CreditCard,
+  LayoutDashboard,
+  Receipt,
+  Settings,
+  Users,
+  Wallet,
+} from "lucide-react";
 import PanelShell from "../components/PanelShell";
-import LogoutButton from "../components/LogoutButton";
 
 const orgNavItems = [
-  { label: "Dashboard", to: "/org" },
-  { label: "Profile", to: "/org/profile" },
-  { label: "Members", to: "/org/members" },
-  { label: "Subscription", to: "/org/subscription" },
-  { label: "Billing", to: "/org/billing" },
-  { label: "Transactions", to: "/org/transactions" },
+  { label: "Dashboard", to: "/org", icon: LayoutDashboard },
+  { label: "Profile", to: "/org/profile", icon: Settings },
+  { label: "Members", to: "/org/members", icon: Users },
+  { label: "Subscription", to: "/org/subscription", icon: CreditCard },
+  { label: "Billing", to: "/org/billing", icon: Wallet },
+  { label: "Transactions", to: "/org/transactions", icon: Receipt },
 ];
 
 const OrgLayout = () => {
   return (
     <PanelShell
       title="Organization Admin"
-      subtitle="Manage your organization profile, members, subscription, and billing."
+      subtitle="Manage your workspace profile, team members, subscription, and billing."
       navItems={orgNavItems}
-      rightAction={<LogoutButton />}
     >
       <Outlet />
     </PanelShell>

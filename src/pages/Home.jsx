@@ -1,340 +1,489 @@
 import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Lottie } from "lottie-react";
+import {
+  ArrowRight,
+  BarChart3,
+  Building2,
+  Check,
+  CreditCard,
+  KeyRound,
+  Layers,
+  Lock,
+  Receipt,
+  ShieldCheck,
+  Sparkles,
+  UserCheck,
+  Zap,
+} from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import roleHome from "../utils/roles";
 import apiClient from "../utils/apiClient";
 import { formatPrice } from "../utils/ui";
+import heroAnimation from "../assets/lottie/hero_lottie.json";
 
-/* ─── Data ────────────────────────────────────────────────────── */
-const features = [
+const CAROUSEL_ITEMS = [
+  { icon: Layers, title: "Isolated Tenant Workspaces", tag: "ORG SCOPED" },
+  { icon: CreditCard, title: "Stripe Checkout & Billing Portal", tag: "PAYMENTS" },
+  { icon: ShieldCheck, title: "Platform, Admin & Member Portals", tag: "RBAC" },
+  { icon: Zap, title: "Expiring Single-Link Invitations", tag: "ONBOARDING" },
+  { icon: BarChart3, title: "Revenue & Seat Analytics", tag: "CHARTS" },
+  { icon: Receipt, title: "Auditable CSV Ledger Export", tag: "TRANSACTIONS" },
+  { icon: Building2, title: "Org Suspend & Reactivate", tag: "LIFECYCLE" },
+  { icon: Lock, title: "Firebase Auth + JWT Verification", tag: "SECURITY" },
+];
+
+const CAPABILITIES = [
   {
-    icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
-    title: "Multi-Tenant Workspaces",
+    num: "01",
+    icon: CreditCard,
+    title: "Stripe-Native Subscriptions",
     description:
-      "Every organization gets its own fully isolated workspace — members, data, billing, and permissions stay completely separate.",
-    color: "from-indigo-500 to-purple-600",
-    glow: "rgba(99,102,241,0.25)",
+      "Hosted Checkout onboarding, instant plan upgrades with proration, period-end cancellations, and idempotent webhooks.",
   },
   {
-    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
-    title: "Role-Based Access",
+    num: "02",
+    icon: Zap,
+    title: "Expiring Invite Links",
     description:
-      "Platform admins, org admins, and members each see exactly what they need. Powerful RBAC baked in from day one.",
-    color: "from-emerald-500 to-teal-600",
-    glow: "rgba(16,185,129,0.25)",
+      "Invite teammates via secure token URLs with automatic seat-limit validation and instant revoke controls.",
   },
   {
-    icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
-    title: "Integrated Billing",
+    num: "03",
+    icon: Receipt,
+    title: "Exportable Revenue Ledger",
     description:
-      "Stripe-powered subscriptions with multiple plans, invoice history, and real-time payment tracking — all in one place.",
-    color: "from-sky-500 to-blue-600",
-    glow: "rgba(14,165,233,0.25)",
-  },
-  {
-    icon: "M13 10V3L4 14h7v7l9-11h-7z",
-    title: "Instant Invitations",
-    description:
-      "Invite members with a single link. Secure token-based acceptance flow gets your team set up in seconds.",
-    color: "from-amber-500 to-orange-600",
-    glow: "rgba(245,158,11,0.25)",
-  },
-  {
-    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-    title: "Analytics & Insights",
-    description:
-      "Platform-level revenue dashboards, per-org stats, and subscription metrics give you the full picture at a glance.",
-    color: "from-pink-500 to-rose-600",
-    glow: "rgba(236,72,153,0.25)",
-  },
-  {
-    icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z",
-    title: "Enterprise Security",
-    description:
-      "Firebase Authentication, JWT tokens, and per-tenant data isolation ensure your data is always protected.",
-    color: "from-violet-500 to-purple-700",
-    glow: "rgba(139,92,246,0.25)",
+      "Every checkout, renewal, upgrade, and refund is recorded in an auditable ledger with CSV export.",
   },
 ];
 
-const stats = [
-  { value: "10k+", label: "Organizations" },
-  { value: "99.9%", label: "Uptime SLA" },
-  { value: "150+", label: "Countries" },
-  { value: "24/7", label: "Support" },
-];
-
-const steps = [
+const WORKFLOW_STEPS = [
   {
     step: "01",
     title: "Create your organization",
-    description: "Sign up, pick a plan, and your isolated workspace is live in under 60 seconds.",
+    description:
+      "Register your tenant workspace, choose Free or a paid Stripe tier, and go live immediately.",
   },
   {
     step: "02",
     title: "Invite your team",
-    description: "Send invite links to any member. Role assignments are automatic and secure.",
+    description:
+      "Send single-link invitations, assign Org Admin or Member roles, and track capacity in real time.",
   },
   {
     step: "03",
-    title: "Collaborate & grow",
-    description: "Manage members, monitor billing, and scale your subscription as you grow.",
+    title: "Scale & audit billing",
+    description:
+      "Upgrade plans anytime, download transaction CSVs, and manage cards inside Stripe Billing Portal.",
   },
 ];
 
-/* ─── Component ───────────────────────────────────────────────── */
 const Home = () => {
   const { user, backendUser, loading } = useAuth();
+
   const plansQuery = useQuery({
     queryKey: ["plans"],
     queryFn: () => apiClient.get("/plans").then((r) => r.data.plans),
   });
   const plans = plansQuery.data || [];
   const isAuthenticated = Boolean(user && backendUser);
-
-  const dashboardTarget = backendUser
-    ? roleHome(backendUser.role)
-    : "/login";
+  const dashboardTarget = backendUser ? roleHome(backendUser.role) : "/login";
 
   return (
     <div className="overflow-x-hidden">
-      {/* ═══ HERO ════════════════════════════════════════════════ */}
+      {/* ═══ BAND 1: OBSIDIAN / CRISP HERO (No grid/graph) ═══════ */}
       <section
         id="hero"
-        className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden"
+        className="band-obsidian relative py-18 sm:py-25 px-4 sm:px-6 border-b border-[var(--band-border)]"
       >
-        {/* Background blobs */}
-        <div className="glow-orb glow-orb-1" />
-        <div className="glow-orb glow-orb-2" />
-        <div className="glow-orb glow-orb-3" />
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+          {/* Editorial Left */}
+          <div className="lg:col-span-7 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/40 bg-purple-500/15 px-4 py-1.5 text-xs font-semibold tracking-wide text-[var(--band-accent)] mb-7">
+              <Sparkles className="w-3.5 h-3.5" />
+              MULTI-TENANT WORKSPACE PLATFORM
+            </div>
 
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-[4.5rem] font-bold text-[var(--band-heading)] leading-[1.03] tracking-tight mb-6">
+              One platform.{" "}
+              <span className="gradient-text block sm:inline">
+                Isolated workspaces.
+              </span>
+            </h1>
 
-        <div className="relative z-10 max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <div className="fade-in-up inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-inner border border-indigo-500/30 text-xs font-medium text-indigo-300 mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Multi-tenant collaboration platform — now in production
+            <p className="text-base sm:text-xl text-[var(--band-body)] max-w-2xl mx-auto lg:mx-0 mb-9 leading-relaxed">
+              Give every organization its own private tenant space — complete with role-based access
+              control, single-link team invitations, and automated Stripe subscription billing.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+              {loading ? null : isAuthenticated ? (
+                <Link
+                  to={dashboardTarget}
+                  className="btn-primary text-sm sm:text-base !py-3.5 !px-8"
+                  id="hero-dashboard-btn"
+                >
+                  Go to dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="btn-primary text-sm sm:text-base !py-3.5 !px-8"
+                    id="hero-register-btn"
+                  >
+                    Start for free
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="btn-secondary text-sm sm:text-base !py-3.5 !px-8"
+                    id="hero-login-btn"
+                  >
+                    Sign in
+                  </Link>
+                </>
+              )}
+            </div>
+
+            <div className="mt-9 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs font-medium text-[var(--band-muted)]">
+              <span className="inline-flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-purple-400" />
+                Tenant Data Isolation
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CreditCard className="w-3.5 h-3.5 text-purple-400" />
+                Stripe Checkout & Webhooks
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+                Firebase + RBAC Enforcement
+              </span>
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="fade-in-up-1 text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] mb-6">
-            A workspace for{" "}
-            <span className="gradient-text block sm:inline">
-              your whole organization
-            </span>
-          </h1>
-
-          {/* Sub-headline */}
-          <p className="fade-in-up-2 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            TeamNest gives every organization an isolated space with its own members, subscription,
-            and payment history — all managed from one powerful platform.
-          </p>
-
-          {/* CTAs */}
-          <div className="fade-in-up-3 flex flex-wrap items-center justify-center gap-4">
-            {loading ? null : isAuthenticated ? (
-              <Link to={dashboardTarget} className="btn-primary text-base !py-3 !px-8" id="hero-dashboard-btn">
-                Go to dashboard →
-              </Link>
-            ) : (
-              <>
-                <Link to="/register" className="btn-primary text-base !py-3 !px-8" id="hero-register-btn">
-                  Start for free →
-                </Link>
-                <Link to="/login" className="btn-secondary text-base !py-3 !px-8" id="hero-login-btn">
-                  Log in
-                </Link>
-              </>
-            )}
+          {/* Hero Lottie Illustration */}
+          <div className="lg:col-span-5 flex items-center justify-center">
+            <Lottie
+              src={heroAnimation}
+              loop
+              autoplay
+              className="w-full max-w-lg mx-auto drop-shadow-2xl"
+              aria-label="TeamNest workspace illustration"
+            />
           </div>
+        </div>
+      </section>
 
-          {/* Floating stat pills */}
-          <div className="fade-in-up-4 mt-16 flex flex-wrap justify-center gap-4">
-            {stats.map(({ value, label }) => (
+      {/* ═══ BAND 2: GRAY INFINITE CAROUSEL ════════════════════ */}
+      <section
+        aria-label="Platform capabilities carousel"
+        className="band-obsidian py-7 border-b border-[var(--band-border)]"
+      >
+        <div className="marquee-viewport">
+          <div className="marquee-track">
+            {[0, 1].map((pass) => (
               <div
-                key={label}
-                className="glass-inner px-5 py-3 flex flex-col items-center hover:border-indigo-500/30 transition-all duration-300"
+                key={pass}
+                aria-hidden={pass === 1}
+                className="flex items-center gap-5 shrink-0"
               >
-                <span className="text-2xl font-bold gradient-text">{value}</span>
-                <span className="text-xs text-slate-500 mt-0.5">{label}</span>
+                {CAROUSEL_ITEMS.map(({ icon: Icon, title, tag }) => (
+                  <div
+                    key={`${pass}-${title}`}
+                    className="flex items-center gap-3.5 rounded-2xl border border-[var(--band-border)] bg-[var(--band-card)] px-4 py-3 shadow-sm shrink-0"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-violet-700 text-white shrink-0 on-accent">
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    <div className="leading-tight">
+                      <div className="font-display text-sm font-bold text-[var(--band-heading)] whitespace-nowrap">
+                        {title}
+                      </div>
+                      <div className="font-mono text-[10px] font-bold tracking-widest text-[var(--band-accent)] mt-0.5">
+                        {tag}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
         </div>
-
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-600 animate-bounce">
-          <span className="text-xs">Scroll</span>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
       </section>
 
-      <div className="divider-gradient" />
-
-      {/* ═══ FEATURES ════════════════════════════════════════════ */}
-      <section id="features" className="relative py-28 px-4">
+      {/* ═══ BAND 3: GRAY CAPABILITIES SHOWCASE ══════════════════ */}
+      <section id="features" className="band-obsidian py-24 sm:py-28 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          {/* Section header */}
-          <div className="text-center mb-16">
-            <span className="inline-block text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">
-              What you get
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              Everything your team{" "}
-              <span className="gradient-text">needs to thrive</span>
-            </h2>
-            <p className="text-slate-400 max-w-xl mx-auto">
-              Purpose-built for modern teams that demand reliability, security, and scalability.
+          {/* Editorial Asymmetric Header */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end mb-14">
+            <div className="lg:col-span-7 border-l-4 border-purple-500 pl-5">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[var(--band-accent)]">
+                Architecture & Capabilities
+              </span>
+              <h2 className="font-display text-3xl sm:text-5xl font-bold text-[var(--band-heading)] mt-2 leading-tight">
+                Engineered for strict tenant separation
+              </h2>
+            </div>
+            <p className="lg:col-span-5 text-sm sm:text-base text-[var(--band-body)] leading-relaxed">
+              Every organization gets clean isolation from signup to invoicing — no shared member
+              tables, no leaked transactions, and zero manual billing wiring.
             </p>
           </div>
 
-          {/* Feature grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map(({ icon, title, description, color, glow }) => (
-              <div
-                key={title}
-                className="glass-card feature-card p-7 group cursor-default"
-                style={{ "--glow": glow }}
-              >
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-5 shadow-lg`}
-                  style={{ boxShadow: `0 8px 24px ${glow}` }}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white" stroke="currentColor" strokeWidth={1.75}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-                  </svg>
+          {/* Spotlight Architectural Panels */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+            {/* Tenant Isolation Spotlight */}
+            <div className="lg:col-span-7 rounded-3xl border border-[var(--band-border)] bg-[var(--band-card)] p-7 flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-xl bg-purple-600/20 border border-purple-500/35 px-3 py-1.5 text-xs font-semibold text-[var(--band-accent)] mb-4">
+                  <Layers className="w-4 h-4" />
+                  Tenant Boundary Isolation
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{description}</p>
+                <h3 className="font-display text-2xl font-bold text-[var(--band-heading)] mb-2">
+                  Dedicated workspace boundaries per organization
+                </h3>
+                <p className="text-sm text-[var(--band-body)] mb-6 max-w-xl">
+                  Users, invitations, subscriptions, and payment ledgers are scoped by{" "}
+                  <code className="font-mono text-xs text-[var(--band-accent)]">orgId</code> at
+                  every API boundary.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { name: "Acme Corp", tier: "Enterprise", status: "ACTIVE", seats: "42 seats" },
+                  { name: "Nova Labs", tier: "Pro", status: "ACTIVE", seats: "18 seats" },
+                ].map((tenant) => (
+                  <div
+                    key={tenant.name}
+                    className="rounded-2xl border border-[var(--band-border)] bg-[var(--band-card-inner)] p-4"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-700 text-white font-bold text-xs flex items-center justify-center on-accent">
+                          <Building2 className="w-4 h-4" />
+                        </span>
+                        <span className="font-display font-bold text-sm text-[var(--band-heading)]">
+                          {tenant.name}
+                        </span>
+                      </div>
+                      <span className="font-mono text-[10px] font-bold text-emerald-400">
+                        {tenant.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-mono text-[var(--band-muted)] pt-2 border-t border-[var(--band-border)]">
+                      <span>{tenant.tier}</span>
+                      <span>{tenant.seats}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RBAC Matrix Spotlight */}
+            <div className="lg:col-span-5 rounded-3xl border border-[var(--band-border)] bg-[var(--band-card)] p-7 flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-xl bg-purple-600/20 border border-purple-500/35 px-3 py-1.5 text-xs font-semibold text-[var(--band-accent)] mb-4">
+                  <KeyRound className="w-4 h-4" />
+                  Role-Based Access Control
+                </div>
+                <h3 className="font-display text-2xl font-bold text-[var(--band-heading)] mb-2">
+                  Three distinct portals
+                </h3>
+                <p className="text-sm text-[var(--band-body)] mb-5">
+                  Strict route and middleware checks keep platform, admin, and member scopes cleanly
+                  separated.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-[var(--band-border)] bg-[var(--band-card-inner)] overflow-hidden text-xs">
+                <div className="grid grid-cols-4 px-4 py-2.5 border-b border-[var(--band-border)] font-mono font-bold text-[var(--band-muted)]">
+                  <span>Scope</span>
+                  <span className="text-center">Platform</span>
+                  <span className="text-center">Admin</span>
+                  <span className="text-center">Member</span>
+                </div>
+                {[
+                  { cap: "Manage Plans", p: true, a: false, m: false },
+                  { cap: "Invite Users", p: false, a: true, m: false },
+                  { cap: "Billing Portal", p: false, a: true, m: false },
+                  { cap: "Team Profile", p: true, a: true, m: true },
+                ].map((row) => (
+                  <div
+                    key={row.cap}
+                    className="grid grid-cols-4 px-4 py-2.5 border-b last:border-b-0 border-[var(--band-border)] items-center"
+                  >
+                    <span className="font-semibold text-[var(--band-heading)]">{row.cap}</span>
+                    {[row.p, row.a, row.m].map((ok, i) => (
+                      <span key={i} className="flex justify-center">
+                        {ok ? (
+                          <Check className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <span className="text-[var(--band-muted)]">—</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Numbered Capability Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {CAPABILITIES.map(({ num, icon: Icon, title, description }) => (
+              <div
+                key={num}
+                className="rounded-3xl border border-[var(--band-border)] bg-[var(--band-card)] p-7 hover:border-purple-500/50 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-purple-500 to-violet-700 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 on-accent">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="font-mono text-2xl font-bold text-[var(--band-muted)] opacity-55">
+                    {num}
+                  </span>
+                </div>
+                <h3 className="font-display text-lg font-bold text-[var(--band-heading)] mb-2">
+                  {title}
+                </h3>
+                <p className="text-sm text-[var(--band-body)] leading-relaxed">{description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <div className="divider-gradient" />
-
-      {/* ═══ HOW IT WORKS ════════════════════════════════════════ */}
-      <section id="how-it-works" className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 glow-orb" style={{ width: 600, height: 600, background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", filter: "blur(60px)" }} />
-
-        <div className="relative max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="inline-block text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">
-              Getting started
+      {/* ═══ BAND 4: FULL-BLEED PURPLE WORKFLOW ══════════════════ */}
+      <section id="how-it-works" className="band-purple py-24 sm:py-28 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-2xl mb-14">
+            <span className="font-mono text-xs font-bold uppercase tracking-widest text-purple-200">
+              How It Works
             </span>
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              Up and running in{" "}
-              <span className="gradient-text">three steps</span>
+            <h2 className="font-display text-3xl sm:text-5xl font-bold text-white mt-2">
+              From signup to active team in three steps
             </h2>
           </div>
 
-          <div className="relative">
-            {/* Connecting line */}
-            <div className="hidden md:block absolute left-[calc(50%-1px)] top-8 bottom-8 w-px bg-gradient-to-b from-indigo-500/50 via-purple-500/50 to-transparent" />
-
-            <div className="space-y-10">
-              {steps.map(({ step, title, description }, i) => (
-                <div
-                  key={step}
-                  className={`flex flex-col md:flex-row items-center gap-6 ${
-                    i % 2 !== 0 ? "md:flex-row-reverse" : ""
-                  }`}
-                >
-                  <div className={`flex-1 ${i % 2 !== 0 ? "md:text-right" : "md:text-left"} text-center`}>
-                    <div className="glass-card p-6 inline-block max-w-sm w-full">
-                      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-                      <p className="text-sm text-slate-400">{description}</p>
-                    </div>
-                  </div>
-
-                  {/* Step bubble */}
-                  <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white font-bold text-sm z-10">
-                    {step}
-                  </div>
-
-                  <div className="flex-1 hidden md:block" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {WORKFLOW_STEPS.map(({ step, title, description }) => (
+              <div
+                key={step}
+                className="rounded-3xl border border-white/20 bg-black/20 backdrop-blur-md p-7 flex flex-col justify-between"
+              >
+                <div className="font-mono text-4xl font-bold text-white/30 mb-6">{step}</div>
+                <div>
+                  <h3 className="font-display text-xl font-bold text-white mb-2.5">{title}</h3>
+                  <p className="text-sm text-purple-100 leading-relaxed">{description}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <div className="divider-gradient" />
+      {/* ═══ BAND 5: LIVE PRICING SHOWCASE ═══════════════════════ */}
+      <section id="pricing" className="band-obsidian py-24 sm:py-28 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="font-mono text-xs font-bold uppercase tracking-widest text-[var(--band-accent)]">
+              Transparent Plans
+            </span>
+            <h2 className="font-display text-3xl sm:text-5xl font-bold text-[var(--band-heading)] mt-2 mb-4">
+              Choose the tier that fits your team
+            </h2>
+            <p className="text-[var(--band-body)]">
+              Live plans synchronized from TeamNest &amp; Stripe. Switch tiers or cancel anytime.
+            </p>
+          </div>
 
-      {/* ═══ PRICING TEASER ══════════════════════════════════════ */}
-      <section id="pricing" className="relative py-28 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <span className="inline-block text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">
-            Pricing
-          </span>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Simple, transparent{" "}
-            <span className="gradient-text">pricing</span>
-          </h2>
-          <p className="text-slate-400 mb-10 max-w-xl mx-auto">
-            Choose a plan that fits your team. Upgrade, downgrade, or cancel any time — no lock-in.
-          </p>
-
-          <div className="grid sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
             {plansQuery.isLoading ? (
-              [1, 2, 3].map((i) => (
-                <div key={i} className="glass-card p-7 h-72 shimmer" />
-              ))
+              [1, 2, 3].map((i) => <div key={i} className="glass-card p-7 h-80 shimmer" />)
             ) : plans.length === 0 ? (
-              <p className="col-span-full text-sm text-slate-400">
+              <p className="col-span-full text-center text-sm text-[var(--band-muted)]">
                 Pricing plans are currently unavailable.
               </p>
             ) : (
               plans.map((plan) => {
                 const popular = plan.slug === "pro";
                 const period = plan.billingInterval === "yearly" ? "/year" : "/month";
+
+                if (popular) {
+                  return (
+                    <div
+                      key={plan.id}
+                      className="pricing-card-featured rounded-3xl p-8 relative flex flex-col"
+                    >
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-violet-700 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg on-accent">
+                        Most popular
+                      </div>
+                      <h3 className="font-display text-xl font-bold text-[var(--feat-heading)] mb-1">
+                        {plan.name}
+                      </h3>
+                      {plan.description && (
+                        <p className="text-xs text-[var(--feat-muted)] mb-5">{plan.description}</p>
+                      )}
+                      <div className="flex items-baseline gap-1 mb-6">
+                        <span className="font-mono text-4xl font-bold text-[var(--feat-heading)]">
+                          {formatPrice(plan.priceCents, plan.currency)}
+                        </span>
+                        <span className="font-mono text-xs text-[var(--feat-muted)]">{period}</span>
+                      </div>
+                      <ul className="space-y-3 mb-8 text-sm text-[var(--feat-body)] flex-1">
+                        {(plan.features || []).map((f) => (
+                          <li key={f} className="flex items-center gap-2.5">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white shrink-0 on-accent">
+                              <Check className="w-3 h-3" />
+                            </span>
+                            <span className="font-medium">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link
+                        to={`/register?plan=${plan.id}`}
+                        className="btn-primary w-full text-center !py-3"
+                        id={`pricing-${plan.slug}-btn`}
+                      >
+                        Get started with {plan.name}
+                      </Link>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={plan.id}
-                    className={`glass-card p-7 relative flex flex-col ${
-                      popular
-                        ? "border-indigo-500/50 shadow-[0_0_40px_rgba(99,102,241,0.2)]"
-                        : ""
-                    }`}
+                    className="rounded-3xl border border-[var(--band-border)] bg-[var(--band-card)] p-8 flex flex-col"
                   >
-                    {popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow-lg">
-                        Most popular
-                      </div>
+                    <h3 className="font-display text-xl font-bold text-[var(--band-heading)] mb-1">
+                      {plan.name}
+                    </h3>
+                    {plan.description && (
+                      <p className="text-xs text-[var(--band-muted)] mb-5">{plan.description}</p>
                     )}
-                    <h3 className="text-lg font-semibold text-white mb-1">{plan.name}</h3>
-                    <div className="flex items-baseline gap-0.5 mb-5">
-                      <span className="text-3xl font-extrabold gradient-text">
+                    <div className="flex items-baseline gap-1 mb-6">
+                      <span className="font-mono text-4xl font-bold text-[var(--band-heading)]">
                         {formatPrice(plan.priceCents, plan.currency)}
                       </span>
-                      <span className="text-slate-500 text-sm">{period}</span>
+                      <span className="font-mono text-xs text-[var(--band-muted)]">{period}</span>
                     </div>
-                    <ul className="space-y-2 mb-6 text-sm text-slate-400 flex-1 text-left">
+                    <ul className="space-y-3 mb-8 text-sm text-[var(--band-body)] flex-1">
                       {(plan.features || []).map((f) => (
-                        <li key={f} className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          {f}
+                        <li key={f} className="flex items-center gap-2.5">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 shrink-0">
+                            <Check className="w-3 h-3" />
+                          </span>
+                          <span>{f}</span>
                         </li>
                       ))}
                     </ul>
                     <Link
                       to={`/register?plan=${plan.id}`}
-                      className={popular ? "btn-primary w-full text-center" : "btn-secondary w-full text-center"}
+                      className="btn-secondary w-full text-center !py-3"
                       id={`pricing-${plan.slug}-btn`}
                     >
                       Get started
@@ -347,32 +496,53 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="divider-gradient" />
+      {/* ═══ BAND 6: CONTRASTING SILVER CLOSING CTA ══════════════ */}
+      <section id="about" className="band-silver py-20 sm:py-24 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7">
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-widest text-[var(--band-accent)] mb-3">
+              <UserCheck className="w-4 h-4" />
+              Ready in under 60 seconds
+            </span>
+            <h2 className="font-display text-3xl sm:text-5xl font-bold text-[var(--band-heading)] leading-tight">
+              Launch your isolated workspace today
+            </h2>
+            <p className="text-base text-[var(--band-body)] mt-4 max-w-xl">
+              Start on the Free tier with up to 50 seats or connect Stripe Checkout to scale your
+              organization immediately.
+            </p>
+          </div>
 
-      {/* ═══ CTA BANNER ═══════════════════════════════════════════ */}
-      <section id="about" className="relative py-24 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/30 via-purple-900/20 to-transparent" />
-        <div className="glow-orb glow-orb-1" style={{ opacity: 0.5 }} />
-
-        <div className="relative max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-5 leading-tight">
-            Ready to bring your team{" "}
-            <span className="gradient-text">together?</span>
-          </h2>
-          <p className="text-slate-400 text-lg mb-10 max-w-xl mx-auto">
-            Join thousands of organizations that trust TeamNest for their daily collaboration.
-            Get started in under a minute.
-          </p>
-          {!isAuthenticated && (
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link to="/register" className="btn-primary text-base !py-3.5 !px-10" id="cta-register-btn">
-                Create your workspace →
+          <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col xl:flex-row lg:items-end justify-end gap-3.5">
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/register"
+                  className="btn-primary text-base !py-3.5 !px-8"
+                  id="cta-register-btn"
+                >
+                  Create your workspace
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--band-border)] bg-[var(--band-card)] px-7 py-3.5 text-sm font-semibold text-[var(--band-heading)] hover:border-purple-500 transition-colors"
+                  id="cta-login-btn"
+                >
+                  Sign in
+                </Link>
+              </>
+            ) : (
+              <Link
+                to={dashboardTarget}
+                className="btn-primary text-base !py-3.5 !px-8"
+                id="cta-dashboard-btn"
+              >
+                Open workspace
+                <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link to="/login" className="btn-secondary text-base !py-3.5 !px-10" id="cta-login-btn">
-                Sign in
-              </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
     </div>

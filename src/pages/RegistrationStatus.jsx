@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, Check, Clock } from "lucide-react";
 import apiClient from "../utils/apiClient";
 import { authContainer, btnPrimary, btnSecondary, cardClass } from "../utils/ui";
 
@@ -28,23 +29,31 @@ const RegistrationStatus = () => {
     <div className={authContainer}>
       <div className={`${cardClass} max-w-md w-full text-center relative z-10`}>
         <div
-          className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold shadow-lg ${
+          className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg ${
             cancelled || isError
-              ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+              ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
               : isActive
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
           }`}
         >
-          {cancelled || isError ? "!" : isActive ? "✓" : "…"}
+          {cancelled || isError ? (
+            <AlertTriangle className="w-7 h-7" />
+          ) : isActive ? (
+            <Check className="w-7 h-7" />
+          ) : (
+            <Clock className="w-7 h-7 animate-pulse" />
+          )}
         </div>
 
         {cancelled ? (
           <>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Payment not completed</h1>
-            <p className="mt-2 text-sm text-slate-300">
+            <h1 className="font-display text-2xl font-bold text-[var(--text-bright)] tracking-tight">
+              Payment not completed
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               Your payment was not completed and your organization is not active yet. Log in
-              and retry the checkout when you're ready.
+              and retry the checkout when you&apos;re ready.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Link to="/login" className={btnPrimary}>
@@ -57,8 +66,10 @@ const RegistrationStatus = () => {
           </>
         ) : isActive ? (
           <>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Your organization is active!</h1>
-            <p className="mt-2 text-sm text-slate-300">
+            <h1 className="font-display text-2xl font-bold text-[var(--text-bright)] tracking-tight">
+              Your organization is active!
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               Your workspace is ready. You can now configure your team and start collaborating.
             </p>
             <div className="mt-6 flex justify-center gap-3">
@@ -69,10 +80,10 @@ const RegistrationStatus = () => {
           </>
         ) : isError ? (
           <>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              We can't confirm your payment right now
+            <h1 className="font-display text-2xl font-bold text-[var(--text-bright)] tracking-tight">
+              We can&apos;t confirm your payment right now
             </h1>
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               Please log in and visit your organization dashboard to continue and retry payment
               if needed.
             </p>
@@ -87,8 +98,10 @@ const RegistrationStatus = () => {
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Payment received</h1>
-            <p className="mt-2 text-sm text-slate-300">
+            <h1 className="font-display text-2xl font-bold text-[var(--text-bright)] tracking-tight">
+              Payment received
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               {statusQuery.isLoading
                 ? "Confirming your payment with Stripe..."
                 : "Activation in progress. We confirm payments with Stripe instantly — this usually takes a few seconds."}

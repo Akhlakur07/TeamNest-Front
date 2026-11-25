@@ -225,8 +225,8 @@ const Subscription = () => {
                   key={p.id}
                   className={`block cursor-pointer rounded-xl border p-4 transition-all ${
                     selectedPlan === p.id
-                      ? "border-indigo-500 bg-indigo-500/20 ring-1 ring-indigo-500/50"
-                      : "border-white/10 bg-white/5 hover:border-indigo-400/40"
+                      ? "border-purple-500 bg-purple-500/15 ring-1 ring-purple-500/50"
+                      : "border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:border-purple-400/50"
                   }`}
                 >
                   <input

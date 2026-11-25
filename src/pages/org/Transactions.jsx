@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../utils/apiClient";
+import { FinancialBreakdownBarChart } from "../../components/DashboardCharts";
 import {
   btnSecondary,
   cardClass,
@@ -79,28 +80,40 @@ const Transactions = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Collected</div>
-          <div className="text-xl font-bold text-white mt-1">
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Collected</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">
             {formatPrice(summary?.collected || 0)}
           </div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Refunds</div>
-          <div className="text-xl font-bold text-rose-400 mt-1">
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Refunds</div>
+          <div className="font-mono text-2xl font-bold text-rose-400 mt-1">
             −{formatPrice(summary?.refunded || 0)}
           </div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Net</div>
-          <div className="text-xl font-bold text-emerald-400 mt-1">
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Net</div>
+          <div className="font-mono text-2xl font-bold text-emerald-400 mt-1">
             {formatPrice(summary?.net || 0)}
           </div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Transactions</div>
-          <div className="text-xl font-bold text-white mt-1">{summary?.count || 0}</div>
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Transactions</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">{summary?.count || 0}</div>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <FinancialBreakdownBarChart
+          grossCents={summary?.collected || 0}
+          refundsCents={summary?.refunded || 0}
+          netCents={summary?.net || 0}
+          byType={summary?.byType || null}
+          labels={["Collected", "Refunds", "Net"]}
+          title="Filtered ledger visualization"
+          subtitle="Live totals and transaction counts matching your active filters"
+        />
       </div>
 
       <div className={cardClass}>

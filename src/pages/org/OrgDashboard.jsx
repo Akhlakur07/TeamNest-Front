@@ -1,9 +1,52 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  Calendar,
+  CreditCard,
+  Layers,
+  Receipt,
+  Settings,
+  Users,
+  Wallet,
+} from "lucide-react";
 import UserCard from "../../components/UserCard";
+import {
+  FinancialBreakdownBarChart,
+  SeatCapacityChart,
+} from "../../components/DashboardCharts";
 import apiClient from "../../utils/apiClient";
 import useAuth from "../../hooks/useAuth";
-import { cardClass, btnPrimary } from "../../utils/ui";
+import { cardClass, btnPrimary, formatPrice } from "../../utils/ui";
+
+const quickActions = [
+  {
+    to: "/org/profile",
+    title: "Workspace Profile",
+    desc: "Update organization contact information, phone, and billing email.",
+    icon: Settings,
+  },
+  {
+    to: "/org/members",
+    title: "Team Members",
+    desc: "Invite teammates, manage pending links, and adjust member roles.",
+    icon: Users,
+  },
+  {
+    to: "/org/subscription",
+    title: "Subscription Plan",
+    desc: "Upgrade, switch tiers, or manage renewal settings via Stripe.",
+    icon: CreditCard,
+  },
+  {
+    to: "/org/transactions",
+    title: "Billing & Invoices",
+    desc: "Inspect payment history, download invoices, and export CSV ledgers.",
+    icon: Receipt,
+  },
+];
 
 const OrgDashboard = () => {
   const { backendOrg, fetchProfile } = useAuth();
@@ -18,6 +61,21 @@ const OrgDashboard = () => {
     enabled: isPending,
     refetchInterval: isPending ? 3000 : false,
     refetchIntervalInBackground: true,
+  });
+
+  const membersQuery = useQuery({
+    queryKey: ["members"],
+    queryFn: () => apiClient.get("/members").then((r) => r.data),
+  });
+
+  const billingQuery = useQuery({
+    queryKey: ["billing", "current"],
+    queryFn: () => apiClient.get("/billing/current").then((r) => r.data),
+  });
+
+  const txQuery = useQuery({
+    queryKey: ["transactions", "summary"],
+    queryFn: () => apiClient.get("/transactions").then((r) => r.data),
   });
 
   useEffect(() => {
@@ -43,22 +101,58 @@ const OrgDashboard = () => {
     }
   };
 
+  const orgMeta = membersQuery.data?.org;
+  const membersList = membersQuery.data?.members || [];
+  const billing = billingQuery.data;
+  const txSummary = txQuery.data?.summary;
+  const plan = billing?.plan;
+  const sub = billing?.subscription;
+
+  const kpis = [
+    {
+      label: "Current Plan",
+      value: plan ? plan.name : "—",
+      sub: plan
+        ? `${formatPrice(plan.priceCents, plan.currency)}${plan.billingInterval === "yearly" ? "/year" : "/month"}`
+        : "Loading…",
+      icon: Layers,
+    },
+    {
+      label: "Team Capacity",
+      value: orgMeta ? `${orgMeta.memberCount}/${orgMeta.maxMembers}` : "—",
+      sub: "Active seats used",
+      icon: Users,
+    },
+    {
+      label: "Subscription",
+      value: sub?.status || backendOrg?.status || "—",
+      sub: sub?.canceledAt ? "Cancels at period end" : "Auto-renewal status",
+      icon: Wallet,
+    },
+    {
+      label: "Next Renewal",
+      value: sub?.currentPeriodEnd
+        ? new Date(sub.currentPeriodEnd).toLocaleDateString()
+        : "—",
+      sub: "Billing cycle end",
+      icon: Calendar,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {isPending && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+        <div className="rounded-2xl border border-amber-500/35 bg-amber-500/10 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
+              <h2 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
                 Payment pending activation
               </h2>
-              <p className="text-sm text-amber-400/80 mt-0.5">
+              <p className="text-sm text-[var(--text-secondary)] mt-0.5">
                 Your organization is not active yet. Complete payment to activate your workspace.
               </p>
-              {payError && <p className="text-sm text-red-400 mt-1">{payError}</p>}
+              {payError && <p className="text-sm text-rose-400 mt-1">{payError}</p>}
             </div>
             <button type="button" className={btnPrimary} onClick={handlePayNow} disabled={paying}>
               {paying ? "Starting..." : "Complete payment"}
@@ -67,26 +161,86 @@ const OrgDashboard = () => {
         </div>
       )}
 
+      {/* Workspace KPI Bento Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {kpis.map(({ label, value, sub, icon: Icon }) => (
+          <div key={label} className="bento-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                {label}
+              </span>
+              <span className="h-9 w-9 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-[var(--accent-text)]">
+                <Icon className="w-4 h-4" />
+              </span>
+            </div>
+            <div className="font-mono text-2xl font-bold text-[var(--text-bright)]">
+              {value}
+            </div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">{sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Workspace Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 min-w-0">
+          <SeatCapacityChart
+            memberCount={orgMeta?.memberCount || 0}
+            maxMembers={orgMeta?.maxMembers || 50}
+            members={membersList}
+          />
+        </div>
+        <div className="lg:col-span-7 min-w-0">
+          <FinancialBreakdownBarChart
+            grossCents={txSummary?.collected || 0}
+            refundsCents={txSummary?.refunded || 0}
+            netCents={txSummary?.net || 0}
+            byType={txSummary?.byType || null}
+            labels={["Collected", "Refunds", "Net"]}
+            title="Organization billing ledger"
+            subtitle="Summary of collected charges, refunds, and transaction activity"
+          />
+        </div>
+      </div>
+
       <UserCard />
 
+      {/* Workspace Quick Launch */}
       <div className={cardClass}>
-        <h2 className="text-base font-semibold text-white mb-3">Getting started</h2>
-        <ul className="space-y-2.5">
-          {[
-            "Profile is ready — edit org contact info and billing email in the Profile tab",
-            "Members management is ready — open the Members tab above",
-            "Subscription management is ready — open the Subscription tab above",
-            "Billing and payment history is ready — open the Billing tab above",
-            "Transaction history with CSV export is ready — open the Transactions tab above",
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-2.5 text-sm text-slate-300">
-              <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              {item}
-            </li>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-display text-base font-bold text-[var(--text-bright)]">
+            Workspace Shortcuts
+          </h2>
+          <Link
+            to="/org/billing"
+            className="text-xs font-semibold text-[var(--accent-text)] hover:underline inline-flex items-center gap-1"
+          >
+            Billing overview
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {quickActions.map(({ to, title, desc, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className="group glass-inner p-4 flex items-start gap-4 hover:border-purple-500/45 transition-all"
+            >
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-violet-600/20 border border-purple-500/30 flex items-center justify-center text-[var(--accent-text)] shrink-0">
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-display text-sm font-bold text-[var(--text-bright)] group-hover:text-[var(--accent-text)] transition-colors">
+                    {title}
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--accent-text)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
+                <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">{desc}</p>
+              </div>
+            </Link>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

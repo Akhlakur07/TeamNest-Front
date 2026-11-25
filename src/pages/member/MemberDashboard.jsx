@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Building2, KeyRound, Layers, User } from "lucide-react";
 import PanelShell from "../../components/PanelShell";
 import UserCard from "../../components/UserCard";
-import LogoutButton from "../../components/LogoutButton";
 import apiClient from "../../utils/apiClient";
 import useAuth from "../../hooks/useAuth";
 import {
@@ -13,6 +13,13 @@ import {
   labelClass,
   formatPrice,
 } from "../../utils/ui";
+
+const memberNavItems = [
+  { label: "Profile", to: "#profile", icon: User },
+  { label: "Security", to: "#security", icon: KeyRound },
+  { label: "Organization", to: "#organization", icon: Building2 },
+  { label: "Plan", to: "#plan", icon: Layers },
+];
 
 const MemberDashboard = () => {
   const { backendUser, fetchProfile, refreshSession } = useAuth();
@@ -88,14 +95,13 @@ const MemberDashboard = () => {
   return (
     <PanelShell
       title="Organization Member"
-      subtitle="Manage your profile and view your organization."
-      navItems={["Profile", "Organization info"]}
-      rightAction={<LogoutButton />}
+      subtitle="Manage your personal profile, security credentials, and workspace overview."
+      navItems={memberNavItems}
     >
       <UserCard />
 
-      <div className={cardClass}>
-        <h2 className="text-base font-semibold text-white mb-4">Profile</h2>
+      <div id="profile" className={`${cardClass} scroll-mt-24`}>
+        <h2 className="font-display text-base font-bold text-[var(--text-bright)] mb-4">Profile</h2>
         <form onSubmit={handleProfile} className="space-y-4 mb-6">
           <div>
             <label htmlFor="member-name" className={labelClass}>Name</label>
@@ -126,8 +132,10 @@ const MemberDashboard = () => {
           </button>
         </form>
 
-        <div className="border-t border-white/10 pt-5">
-          <h3 className="text-base font-semibold text-white mb-4">Change password</h3>
+        <div id="security" className="border-t border-[var(--border-subtle)] pt-6 scroll-mt-24">
+          <h3 className="font-display text-base font-bold text-[var(--text-bright)] mb-4">
+            Change password
+          </h3>
           <form onSubmit={handlePassword} className="space-y-4">
             <input
               type="email"
@@ -200,27 +208,30 @@ const MemberDashboard = () => {
         </div>
       </div>
 
-      <div className={cardClass}>
-        <h2 className="text-base font-semibold text-white mb-4">Organization</h2>
+      <div id="organization" className={`${cardClass} scroll-mt-24`}>
+        <h2 className="font-display text-base font-bold text-[var(--text-bright)] mb-4">
+          Organization
+        </h2>
         {membersQuery.isLoading ? (
-          <p className="text-sm text-slate-400">Loading...</p>
+          <p className="text-sm text-[var(--text-muted)]">Loading...</p>
         ) : (
           <>
-            <p className="text-base text-white font-semibold">{org?.name}</p>
-            <p className="text-xs text-slate-400 mt-1">
-              Status <span className="text-slate-300 font-medium">{org?.status}</span> • {org?.memberCount}/{org?.maxMembers} members
+            <p className="font-display text-lg text-[var(--text-bright)] font-bold">{org?.name}</p>
+            <p className="text-xs font-mono text-[var(--text-muted)] mt-1">
+              Status <span className="text-[var(--text-bright)] font-semibold">{org?.status}</span> •{" "}
+              {org?.memberCount}/{org?.maxMembers} members
             </p>
-            <ul className="mt-4 divide-y divide-white/10 text-sm">
+            <ul className="mt-4 divide-y divide-[var(--border-subtle)] text-sm">
               {members?.map((m) => (
-                <li key={m.id} className="flex items-center justify-between py-2.5">
+                <li key={m.id} className="flex items-center justify-between py-3">
                   <div>
-                    <div className="text-white font-medium">{m.name}</div>
-                    <div className="text-slate-400 text-xs">{m.email}</div>
+                    <div className="text-[var(--text-bright)] font-semibold">{m.name}</div>
+                    <div className="text-[var(--text-muted)] font-mono text-xs">{m.email}</div>
                   </div>
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-semibold font-mono ${
                       m.role === "org_admin"
-                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                        ? "bg-purple-500/20 text-[var(--accent-text)] border border-purple-500/30"
                         : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                     }`}
                   >
@@ -233,26 +244,28 @@ const MemberDashboard = () => {
         )}
       </div>
 
-      <div className={cardClass}>
-        <h2 className="text-base font-semibold text-white mb-4">Plan</h2>
+      <div id="plan" className={`${cardClass} scroll-mt-24`}>
+        <h2 className="font-display text-base font-bold text-[var(--text-bright)] mb-4">Plan</h2>
         {billingQuery.isLoading ? (
-          <p className="text-sm text-slate-400">Loading...</p>
+          <p className="text-sm text-[var(--text-muted)]">Loading...</p>
         ) : billing?.plan ? (
           <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-            <div>
-              <dt className="text-slate-400 text-xs">Plan</dt>
-              <dd className="text-white font-semibold mt-1">{billing.plan.name}</dd>
+            <div className="glass-inner p-4">
+              <dt className="text-[var(--text-muted)] text-xs">Plan</dt>
+              <dd className="font-display text-[var(--text-bright)] font-bold mt-1">
+                {billing.plan.name}
+              </dd>
             </div>
-            <div>
-              <dt className="text-slate-400 text-xs">Price</dt>
-              <dd className="text-white font-semibold mt-1">
+            <div className="glass-inner p-4">
+              <dt className="text-[var(--text-muted)] text-xs">Price</dt>
+              <dd className="font-mono text-[var(--text-bright)] font-bold mt-1">
                 {formatPrice(billing.plan.priceCents, billing.plan.currency)}
                 {billing.plan.billingInterval === "yearly" ? "/year" : "/month"}
               </dd>
             </div>
-            <div>
-              <dt className="text-slate-400 text-xs">Renews</dt>
-              <dd className="text-white font-semibold mt-1">
+            <div className="glass-inner p-4">
+              <dt className="text-[var(--text-muted)] text-xs">Renews</dt>
+              <dd className="font-mono text-[var(--text-bright)] font-bold mt-1">
                 {billing.subscription?.currentPeriodEnd
                   ? new Date(billing.subscription.currentPeriodEnd).toLocaleDateString()
                   : "—"}
@@ -260,7 +273,7 @@ const MemberDashboard = () => {
             </div>
           </dl>
         ) : (
-          <p className="text-sm text-slate-400">No plan information available.</p>
+          <p className="text-sm text-[var(--text-muted)]">No plan information available.</p>
         )}
       </div>
     </PanelShell>

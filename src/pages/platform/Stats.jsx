@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../utils/apiClient";
 import StatusBadge from "../../components/StatusBadge";
+import {
+  FinancialBreakdownBarChart,
+  OrgStatusDonutChart,
+} from "../../components/DashboardCharts";
 import { cardClass, formatPrice, statusStyle } from "../../utils/ui";
 
 const TYPE_LABELS = {
@@ -35,42 +39,57 @@ const Stats = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Organizations</div>
-          <div className="text-xl font-bold text-white mt-1">{orgs.total || 0}</div>
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Organizations</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">{orgs.total || 0}</div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Paid plans</div>
-          <div className="text-xl font-bold text-white mt-1">{s.planCount || 0}</div>
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Paid plans</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">{s.planCount || 0}</div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Members</div>
-          <div className="text-xl font-bold text-white mt-1">{s.memberCount || 0}</div>
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Members</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">{s.memberCount || 0}</div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Transactions</div>
-          <div className="text-xl font-bold text-white mt-1">{s.transactionCount || 0}</div>
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Transactions</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">{s.transactionCount || 0}</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Gross revenue</div>
-          <div className="text-xl font-bold text-white mt-1">
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Gross revenue</div>
+          <div className="font-mono text-2xl font-bold text-white mt-1">
             {formatPrice(s.grossCents || 0)}
           </div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Refunds</div>
-          <div className="text-xl font-bold text-rose-400 mt-1">
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Refunds</div>
+          <div className="font-mono text-2xl font-bold text-rose-400 mt-1">
             −{formatPrice(s.refundsCents || 0)}
           </div>
         </div>
-        <div className={cardClass}>
-          <div className="text-xs font-medium text-slate-400">Net revenue</div>
-          <div className="text-xl font-bold text-emerald-400 mt-1">
+        <div className="bento-card p-5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Net revenue</div>
+          <div className="font-mono text-2xl font-bold text-emerald-400 mt-1">
             {formatPrice(s.netCents || 0)}
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+        <div className="lg:col-span-6 min-w-0">
+          <OrgStatusDonutChart organizations={orgs} />
+        </div>
+        <div className="lg:col-span-6 min-w-0">
+          <FinancialBreakdownBarChart
+            grossCents={s.grossCents || 0}
+            refundsCents={s.refundsCents || 0}
+            netCents={s.netCents || 0}
+            title="Platform revenue breakdown"
+            subtitle="Gross collected vs. refunds & net revenue"
+          />
         </div>
       </div>
 

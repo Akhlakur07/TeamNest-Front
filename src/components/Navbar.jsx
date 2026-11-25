@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router";
 import { useState, useEffect } from "react";
+import { LayoutDashboard, Sparkles } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import LogoutButton from "./LogoutButton";
-
+import ThemeToggle from "./ThemeToggle";
 import roleHome from "../utils/roles";
 
 const Navbar = () => {
@@ -26,18 +27,16 @@ const Navbar = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "navbar-glass shadow-lg shadow-black/20" : "bg-transparent"
+        scrolled ? "navbar-glass shadow-lg shadow-black/15" : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group" id="nav-logo">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-shadow">
-            <svg viewBox="0 0 24 24" fill="none" className="w-4.5 h-4.5 text-white" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-violet-700 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-shadow on-accent">
+            <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
-          <span className="text-lg font-bold text-white tracking-tight">
+          <span className="font-display text-lg font-bold text-[var(--text-bright)] tracking-tight">
             Team<span className="gradient-text">Nest</span>
           </span>
         </Link>
@@ -45,83 +44,154 @@ const Navbar = () => {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm" id="nav-desktop">
           {!isAuthPage && (
-            <>
-              <a href="/#features" className="text-slate-400 hover:text-white transition-colors duration-200">Features</a>
-              <a href="/#pricing" className="text-slate-400 hover:text-white transition-colors duration-200">Pricing</a>
-              <a href="/#about" className="text-slate-400 hover:text-white transition-colors duration-200">About</a>
-            </>
+            <div className="flex items-center gap-6 mr-2">
+              <a
+                href="/#features"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] font-medium transition-colors duration-200"
+              >
+                Features
+              </a>
+              <a
+                href="/#pricing"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] font-medium transition-colors duration-200"
+              >
+                Pricing
+              </a>
+              <a
+                href="/#about"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] font-medium transition-colors duration-200"
+              >
+                About
+              </a>
+            </div>
           )}
+
+          <ThemeToggle id="nav-theme-toggle" showLabel />
+
           {user && backendUser ? (
-            <div className="flex items-center gap-4 ml-2">
+            <div className="flex items-center gap-3">
               <Link
                 to={dashboardPath}
-                className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors flex items-center gap-1.5"
+                className="inline-flex items-center gap-2 rounded-xl border border-purple-500/35 bg-purple-500/15 px-3.5 py-1.5 text-xs font-semibold text-[var(--accent-text)] hover:bg-purple-500/25 transition-colors"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <LayoutDashboard className="w-3.5 h-3.5" />
                 Dashboard
               </Link>
-              <span className="hidden lg:block text-xs text-slate-500 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+              <span className="hidden lg:block font-mono text-xs text-[var(--text-muted)] bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-full px-3 py-1.5">
                 {user.email}
               </span>
-              <LogoutButton className="btn-secondary !py-1.5 !px-4 !text-xs" />
+              <LogoutButton className="btn-secondary !py-1.5 !px-3.5 !text-xs" />
             </div>
           ) : (
-            <div className="flex items-center gap-3 ml-2">
-              <Link to="/login" id="nav-login" className="text-slate-300 hover:text-white font-medium transition-colors">
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                id="nav-login"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] font-semibold transition-colors px-2 py-1"
+              >
                 Log in
               </Link>
-              <Link to="/register" id="nav-register" className="btn-primary !py-1.5 !px-4 !text-xs">
+              <Link to="/register" id="nav-register" className="btn-primary !py-2 !px-4 !text-xs">
                 Get started
               </Link>
             </div>
           )}
         </nav>
 
-        {/* Mobile hamburger */}
-        <button
-          id="nav-mobile-toggle"
-          className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/10 transition-colors"
-          onClick={() =>
-            setMobileOpenPath((p) => (p === location.pathname ? null : location.pathname))
-          }
-          aria-label="Toggle menu"
-        >
-          <span className={`block w-5 h-0.5 bg-slate-300 rounded transition-all duration-200 ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
-          <span className={`block w-5 h-0.5 bg-slate-300 rounded transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`} />
-          <span className={`block w-5 h-0.5 bg-slate-300 rounded transition-all duration-200 ${mobileOpen ? "-rotate-45 -translate-y-2" : ""}`} />
-        </button>
+        {/* Mobile controls */}
+        <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle id="nav-mobile-theme-toggle" />
+          <button
+            id="nav-mobile-toggle"
+            type="button"
+            className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] transition-colors"
+            onClick={() =>
+              setMobileOpenPath((p) => (p === location.pathname ? null : location.pathname))
+            }
+            aria-label="Toggle menu"
+          >
+            <span
+              className={`block w-4.5 h-0.5 bg-[var(--text-primary)] rounded transition-all duration-200 ${
+                mobileOpen ? "rotate-45 translate-y-2" : ""
+              }`}
+            />
+            <span
+              className={`block w-4.5 h-0.5 bg-[var(--text-primary)] rounded transition-all duration-200 ${
+                mobileOpen ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`block w-4.5 h-0.5 bg-[var(--text-primary)] rounded transition-all duration-200 ${
+                mobileOpen ? "-rotate-45 -translate-y-2" : ""
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          mobileOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
-        } navbar-glass border-t border-white/10`}
+          mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        } navbar-glass border-t border-[var(--border-subtle)]`}
       >
         <div className="px-4 py-4 flex flex-col gap-3 text-sm" id="nav-mobile">
           {!isAuthPage && (
             <>
-              <a href="/#features" className="text-slate-300 hover:text-white py-1 transition-colors">Features</a>
-              <a href="/#pricing" className="text-slate-300 hover:text-white py-1 transition-colors">Pricing</a>
-              <a href="/#about" className="text-slate-300 hover:text-white py-1 transition-colors">About</a>
+              <a
+                href="/#features"
+                onClick={() => setMobileOpenPath(null)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] py-1 font-medium transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="/#pricing"
+                onClick={() => setMobileOpenPath(null)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] py-1 font-medium transition-colors"
+              >
+                Pricing
+              </a>
+              <a
+                href="/#about"
+                onClick={() => setMobileOpenPath(null)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] py-1 font-medium transition-colors"
+              >
+                About
+              </a>
             </>
           )}
           {user && backendUser ? (
             <>
               <Link
                 to={dashboardPath}
-                className="text-indigo-400 hover:text-indigo-300 font-semibold py-1 transition-colors flex items-center gap-2"
+                onClick={() => setMobileOpenPath(null)}
+                className="text-[var(--accent-text)] font-semibold py-1 flex items-center gap-2"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <LayoutDashboard className="w-4 h-4" />
                 Dashboard
               </Link>
-              <span className="text-xs text-slate-500 py-1">{user.email}</span>
-              <LogoutButton />
+              <span className="font-mono text-xs text-[var(--text-muted)] py-1">{user.email}</span>
+              <LogoutButton id="mobile-nav-logout-btn" />
             </>
           ) : (
             <>
-              <Link to="/login" id="nav-mobile-login" className="text-slate-300 hover:text-white py-1 font-medium">Log in</Link>
-              <Link to="/register" id="nav-mobile-register" className="btn-primary text-center mt-1">Get started</Link>
+              <Link
+                to="/login"
+                id="nav-mobile-login"
+                onClick={() => setMobileOpenPath(null)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-bright)] py-1 font-semibold"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/register"
+                id="nav-mobile-register"
+                onClick={() => setMobileOpenPath(null)}
+                className="btn-primary text-center mt-1"
+              >
+                Get started
+              </Link>
             </>
           )}
         </div>
