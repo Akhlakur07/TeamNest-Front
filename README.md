@@ -9,7 +9,7 @@
 
 ## Screenshots
 
-### Landing Page — Dark Theme (`#282D31` Gray · `#D9DADC` Silver · Purple) & Light Theme
+### Landing Page — Dark Theme & Light Theme
 | Dark Mode | Light Mode |
 | --- | --- |
 | ![TeamNest Home Dark](docs/screenshots/home-dark.png) | ![TeamNest Home Light](docs/screenshots/home-light.png) |
